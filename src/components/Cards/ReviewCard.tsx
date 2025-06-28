@@ -135,7 +135,7 @@ export function ReviewCard({ phrase }: ReviewCardProps) {
           <div className="flex justify-center gap-2">
             <button
               onClick={() => setSelectedDifficulty(0.2)}
-              className={`px-4 py-2 rounded-lg border-2 transition-colors ${
+              className={`px-4 py-3 rounded-lg border-2 transition-colors ${
                 selectedDifficulty === 0.2
                   ? 'border-green-500 bg-green-50 text-green-700'
                   : 'border-gray-200 hover:border-gray-300'
@@ -145,7 +145,7 @@ export function ReviewCard({ phrase }: ReviewCardProps) {
             </button>
             <button
               onClick={() => setSelectedDifficulty(0.5)}
-              className={`px-4 py-2 rounded-lg border-2 transition-colors ${
+              className={`px-4 py-3 rounded-lg border-2 transition-colors ${
                 selectedDifficulty === 0.5
                   ? 'border-yellow-500 bg-yellow-50 text-yellow-700'
                   : 'border-gray-200 hover:border-gray-300'
@@ -155,7 +155,7 @@ export function ReviewCard({ phrase }: ReviewCardProps) {
             </button>
             <button
               onClick={() => setSelectedDifficulty(0.8)}
-              className={`px-4 py-2 rounded-lg border-2 transition-colors ${
+              className={`px-4 py-3 rounded-lg border-2 transition-colors ${
                 selectedDifficulty === 0.8
                   ? 'border-red-500 bg-red-50 text-red-700'
                   : 'border-gray-200 hover:border-gray-300'
