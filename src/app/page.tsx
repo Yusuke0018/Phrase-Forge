@@ -16,7 +16,6 @@ import { format } from 'date-fns';
 import { ja } from 'date-fns/locale';
 import { usePhraseStore } from '@/stores/phrase.store';
 import { ReviewCard } from '@/components/Cards/ReviewCard';
-import { loadSampleData } from '@/utils/sampleData';
 import { useAppInitializer } from '@/hooks/useAppInitializer';
 
 export default function HomePage() {
@@ -30,10 +29,6 @@ export default function HomePage() {
   const currentPhrase = todaysPhrases[currentPhraseIndex];
   const today = new Date();
 
-  const handleLoadSampleData = async () => {
-    await loadSampleData();
-    await loadTodaysPhrases();
-  };
 
   if (isInitializing) {
     return (
@@ -85,15 +80,15 @@ export default function HomePage() {
             本日の復習はありません
           </h2>
           <p className="text-gray-600 dark:text-gray-400 mb-6">
-            新しいフレーズを追加するか、明日また確認してください。
+            まずは「武器庫」から新しいフレーズを追加してください。
           </p>
-          <button
-            onClick={handleLoadSampleData}
-            className="px-6 py-2 bg-primary-600 text-white rounded-lg 
+          <a
+            href="/arsenal"
+            className="inline-block px-6 py-2 bg-primary-600 text-white rounded-lg 
                      hover:bg-primary-700 transition-colors"
           >
-            サンプルデータを読み込む
-          </button>
+            フレーズを追加する
+          </a>
         </div>
       ) : currentPhrase ? (
         <ReviewCard phrase={currentPhrase} />
