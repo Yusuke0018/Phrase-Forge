@@ -66,7 +66,7 @@ export function AddPhraseModal({ isOpen, onClose }: AddPhraseModalProps) {
         pronunciation: formData.pronunciation.trim(),
         categoryId: categoryId,
         tags: formData.selectedTags,
-        nextReviewDate: calculateNextReviewDate('today'),
+        nextReviewDate: new Date(),
         reviewHistory: [],
       });
 
