@@ -38,6 +38,7 @@ interface PhraseStore {
   
   setCurrentPhraseIndex: (index: number) => void;
   moveToNextPhrase: () => void;
+  removeReviewedPhrase: (phraseId: string) => void;
   
   searchPhrases: (query: string) => Promise<Phrase[]>;
   filterByTag: (tagId: string) => Promise<Phrase[]>;
@@ -159,6 +160,18 @@ export const usePhraseStore = create<PhraseStore>((set, get) => ({
     if (currentPhraseIndex < todaysPhrases.length - 1) {
       set({ currentPhraseIndex: currentPhraseIndex + 1 });
     }
+  },
+
+  removeReviewedPhrase: (phraseId: string) => {
+    set((state) => {
+      const newTodaysPhrases = state.todaysPhrases.filter((p) => p.id !== phraseId);
+      // 現在のインデックスが配列の範囲外になった場合は調整
+      const newIndex = Math.min(state.currentPhraseIndex, newTodaysPhrases.length - 1);
+      return {
+        todaysPhrases: newTodaysPhrases,
+        currentPhraseIndex: Math.max(0, newIndex)
+      };
+    });
   },
 
   // 検索・フィルタ

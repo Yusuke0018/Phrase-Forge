@@ -31,21 +31,22 @@ interface ReviewCardProps {
 export function ReviewCard({ phrase }: ReviewCardProps) {
   const [showTranslation, setShowTranslation] = useState(false);
   const [isFlipping, setIsFlipping] = useState(false);
-  const { moveToNextPhrase, loadTodaysPhrases } = usePhraseStore();
+  const [selectedDifficulty, setSelectedDifficulty] = useState<number | null>(null);
+  const { removeReviewedPhrase } = usePhraseStore();
 
   const handleIntervalSelect = async (interval: ReviewInterval) => {
     try {
+      // デフォルトの難易度は0.5（中程度）
+      const difficulty = selectedDifficulty ?? 0.5;
       const nextReviewDate = calculateNextReviewDate(interval);
-      await updatePhraseReviewDate(phrase.id, nextReviewDate, interval);
+      await updatePhraseReviewDate(phrase.id, nextReviewDate, interval, difficulty);
       
-      // 次のカードへ移動
-      moveToNextPhrase();
-      
-      // リストを更新
-      await loadTodaysPhrases();
+      // レビュー済みのフレーズを状態から削除
+      removeReviewedPhrase(phrase.id);
       
       // 翻訳を隠す
       setShowTranslation(false);
+      setSelectedDifficulty(null);
     } catch (error) {
       console.error('Failed to update review date:', error);
     }
@@ -126,6 +127,45 @@ export function ReviewCard({ phrase }: ReviewCardProps) {
           </div>
         )}
       </motion.div>
+
+      {/* 難易度選択 */}
+      {showTranslation && (
+        <div className="mt-4 px-4">
+          <p className="text-sm text-gray-600 mb-2 text-center">どのくらい難しかったですか？</p>
+          <div className="flex justify-center gap-2">
+            <button
+              onClick={() => setSelectedDifficulty(0.2)}
+              className={`px-4 py-2 rounded-lg border-2 transition-colors ${
+                selectedDifficulty === 0.2
+                  ? 'border-green-500 bg-green-50 text-green-700'
+                  : 'border-gray-200 hover:border-gray-300'
+              }`}
+            >
+              簡単
+            </button>
+            <button
+              onClick={() => setSelectedDifficulty(0.5)}
+              className={`px-4 py-2 rounded-lg border-2 transition-colors ${
+                selectedDifficulty === 0.5
+                  ? 'border-yellow-500 bg-yellow-50 text-yellow-700'
+                  : 'border-gray-200 hover:border-gray-300'
+              }`}
+            >
+              普通
+            </button>
+            <button
+              onClick={() => setSelectedDifficulty(0.8)}
+              className={`px-4 py-2 rounded-lg border-2 transition-colors ${
+                selectedDifficulty === 0.8
+                  ? 'border-red-500 bg-red-50 text-red-700'
+                  : 'border-gray-200 hover:border-gray-300'
+              }`}
+            >
+              難しい
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* 復習間隔選択ボタン */}
       <div className="mt-6 grid grid-cols-2 gap-3 px-4">

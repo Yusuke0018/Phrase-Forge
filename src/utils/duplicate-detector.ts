@@ -6,136 +6,156 @@
  * 
  * @related
  * - services/import.service.ts: インポート処理で使用
- * - types/models.ts: Phraseモデル定義
+ * - types/models.ts: Phrase型定義
  */
 
 import { Phrase } from '@/types/models';
 
-export interface DuplicateDetectionResult {
-  phrase: Phrase;
-  similarity: number;
-  matchType: 'exact' | 'english_only' | 'similar';
-}
-
 /**
- * レーベンシュタイン距離を計算
+ * 文字列の類似度を計算（レーベンシュタイン距離ベース）
  */
-function levenshteinDistance(str1: string, str2: string): number {
-  const matrix: number[][] = [];
+function calculateSimilarity(str1: string, str2: string): number {
+  const len1 = str1.length;
+  const len2 = str2.length;
   
-  for (let i = 0; i <= str2.length; i++) {
-    matrix[i] = [i];
+  // 空文字列の場合
+  if (len1 === 0 || len2 === 0) {
+    return 0;
   }
   
-  for (let j = 0; j <= str1.length; j++) {
+  // 完全一致
+  if (str1 === str2) {
+    return 1;
+  }
+  
+  const matrix: number[][] = [];
+  
+  // 初期化
+  for (let i = 0; i <= len1; i++) {
+    matrix[i] = [i];
+  }
+  for (let j = 0; j <= len2; j++) {
     matrix[0][j] = j;
   }
   
-  for (let i = 1; i <= str2.length; i++) {
-    for (let j = 1; j <= str1.length; j++) {
-      if (str2.charAt(i - 1) === str1.charAt(j - 1)) {
-        matrix[i][j] = matrix[i - 1][j - 1];
-      } else {
-        matrix[i][j] = Math.min(
-          matrix[i - 1][j - 1] + 1, // 置換
-          matrix[i][j - 1] + 1,     // 挿入
-          matrix[i - 1][j] + 1      // 削除
-        );
-      }
+  // レーベンシュタイン距離を計算
+  for (let i = 1; i <= len1; i++) {
+    for (let j = 1; j <= len2; j++) {
+      const cost = str1[i - 1] === str2[j - 1] ? 0 : 1;
+      matrix[i][j] = Math.min(
+        matrix[i - 1][j] + 1,     // 削除
+        matrix[i][j - 1] + 1,     // 挿入
+        matrix[i - 1][j - 1] + cost // 置換
+      );
     }
   }
   
-  return matrix[str2.length][str1.length];
+  const distance = matrix[len1][len2];
+  const maxLen = Math.max(len1, len2);
+  
+  // 類似度を0〜1の範囲で返す
+  return 1 - (distance / maxLen);
 }
 
 /**
- * 文字列の類似度を計算（0〜1の値）
+ * フレーズの正規化（比較用）
  */
-function calculateSimilarity(str1: string, str2: string): number {
-  const distance = levenshteinDistance(str1.toLowerCase(), str2.toLowerCase());
-  const maxLength = Math.max(str1.length, str2.length);
-  
-  if (maxLength === 0) return 1;
-  
-  return 1 - (distance / maxLength);
+function normalizePhrase(phrase: string): string {
+  return phrase
+    .toLowerCase()
+    .trim()
+    .replace(/[.,!?;:'"]/g, '') // 句読点を削除
+    .replace(/\s+/g, ' ');       // 複数の空白を1つに
 }
 
 /**
- * フレーズの重複を検出
+ * 重複フレーズを検出
  */
 export async function detectDuplicates(
-  targetPhrase: Partial<Phrase>,
-  existingPhrases: Phrase[]
+  newPhrase: Partial<Phrase>,
+  existingPhrases: Phrase[],
+  threshold: number = 0.8
 ): Promise<Phrase[]> {
-  const results: DuplicateDetectionResult[] = [];
+  if (!newPhrase.english || !newPhrase.japanese) {
+    return [];
+  }
+  
+  const normalizedNewEnglish = normalizePhrase(newPhrase.english);
+  const normalizedNewJapanese = normalizePhrase(newPhrase.japanese);
+  
+  const duplicates: { phrase: Phrase; score: number }[] = [];
   
   for (const existing of existingPhrases) {
-    // 完全一致チェック（英語 + 日本語）
-    if (
-      existing.english === targetPhrase.english &&
-      existing.japanese === targetPhrase.japanese
-    ) {
-      results.push({
-        phrase: existing,
-        similarity: 1.0,
-        matchType: 'exact'
-      });
-      continue;
+    const normalizedExistingEnglish = normalizePhrase(existing.english);
+    const normalizedExistingJapanese = normalizePhrase(existing.japanese);
+    
+    // 英語と日本語の類似度を計算
+    const englishSimilarity = calculateSimilarity(normalizedNewEnglish, normalizedExistingEnglish);
+    const japaneseSimilarity = calculateSimilarity(normalizedNewJapanese, normalizedExistingJapanese);
+    
+    // 総合スコア（英語と日本語の平均）
+    const totalScore = (englishSimilarity + japaneseSimilarity) / 2;
+    
+    // しきい値を超えた場合は重複と判定
+    if (totalScore >= threshold) {
+      duplicates.push({ phrase: existing, score: totalScore });
     }
     
-    // 英語のみ一致チェック
-    if (existing.english === targetPhrase.english) {
-      results.push({
-        phrase: existing,
-        similarity: 0.9,
-        matchType: 'english_only'
-      });
-      continue;
-    }
-    
-    // 類似度チェック
-    if (targetPhrase.english) {
-      const englishSimilarity = calculateSimilarity(
-        existing.english,
-        targetPhrase.english
-      );
-      
-      if (englishSimilarity > 0.8) {
-        results.push({
-          phrase: existing,
-          similarity: englishSimilarity,
-          matchType: 'similar'
-        });
-      }
+    // 完全一致の場合は即座に返す
+    if (englishSimilarity === 1 && japaneseSimilarity === 1) {
+      return [existing];
     }
   }
   
-  // 類似度の高い順にソート
-  results.sort((a, b) => b.similarity - a.similarity);
+  // スコアの高い順にソート
+  duplicates.sort((a, b) => b.score - a.score);
   
-  return results.map(r => r.phrase);
+  return duplicates.map(d => d.phrase);
 }
 
 /**
- * 重複フレーズをマージ
+ * バッチ重複検出（複数フレーズを一度にチェック）
  */
-export function mergePhrases(
-  existing: Phrase,
-  imported: Partial<Phrase>
-): Partial<Phrase> {
-  return {
-    ...existing,
-    // 新しい情報で上書き（空でない場合）
-    pronunciation: imported.pronunciation || existing.pronunciation,
-    // タグはマージ
-    tags: Array.from(new Set([...existing.tags, ...(imported.tags || [])])),
-    // レビュー履歴は既存のものを保持
-    reviewHistory: existing.reviewHistory,
-    // 次回レビュー日は早い方を選択
-    nextReviewDate: imported.nextReviewDate && 
-      new Date(imported.nextReviewDate) < existing.nextReviewDate
-      ? new Date(imported.nextReviewDate)
-      : existing.nextReviewDate,
-    updatedAt: new Date()
-  };
+export async function detectBatchDuplicates(
+  newPhrases: Partial<Phrase>[],
+  existingPhrases: Phrase[],
+  threshold: number = 0.8
+): Promise<Map<number, Phrase[]>> {
+  const results = new Map<number, Phrase[]>();
+  
+  for (let i = 0; i < newPhrases.length; i++) {
+    const duplicates = await detectDuplicates(newPhrases[i], existingPhrases, threshold);
+    if (duplicates.length > 0) {
+      results.set(i, duplicates);
+    }
+  }
+  
+  return results;
+}
+
+/**
+ * フレーズが類似しているかチェック（シンプル版）
+ */
+export function isSimilarPhrase(
+  phrase1: Partial<Phrase>,
+  phrase2: Phrase,
+  threshold: number = 0.8
+): boolean {
+  if (!phrase1.english || !phrase1.japanese) {
+    return false;
+  }
+  
+  const englishSimilarity = calculateSimilarity(
+    normalizePhrase(phrase1.english),
+    normalizePhrase(phrase2.english)
+  );
+  
+  const japaneseSimilarity = calculateSimilarity(
+    normalizePhrase(phrase1.japanese),
+    normalizePhrase(phrase2.japanese)
+  );
+  
+  const totalScore = (englishSimilarity + japaneseSimilarity) / 2;
+  
+  return totalScore >= threshold;
 }

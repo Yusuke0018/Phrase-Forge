@@ -12,35 +12,20 @@
 
 'use client';
 
-import { useEffect } from 'react';
 import { format } from 'date-fns';
 import { ja } from 'date-fns/locale';
 import { usePhraseStore } from '@/stores/phrase.store';
 import { ReviewCard } from '@/components/Cards/ReviewCard';
-import { db, initializeDB } from '@/services/db.service';
 import { loadSampleData } from '@/utils/sampleData';
+import { useAppInitializer } from '@/hooks/useAppInitializer';
 
 export default function HomePage() {
+  const { isInitializing, initError } = useAppInitializer();
   const { 
     todaysPhrases, 
-    currentPhraseIndex, 
-    isLoading,
-    loadTodaysPhrases,
-    loadCategories,
-    loadTags
+    currentPhraseIndex,
+    loadTodaysPhrases
   } = usePhraseStore();
-
-  useEffect(() => {
-    const init = async () => {
-      await initializeDB();
-      await Promise.all([
-        loadTodaysPhrases(),
-        loadCategories(),
-        loadTags()
-      ]);
-    };
-    init();
-  }, [loadTodaysPhrases, loadCategories, loadTags]);
 
   const currentPhrase = todaysPhrases[currentPhraseIndex];
   const today = new Date();
@@ -50,12 +35,28 @@ export default function HomePage() {
     await loadTodaysPhrases();
   };
 
-  if (isLoading) {
+  if (isInitializing) {
     return (
       <div className="flex items-center justify-center min-h-screen">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600 mx-auto"></div>
-          <p className="mt-4 text-gray-600">読み込み中...</p>
+          <p className="mt-4 text-gray-600">アプリケーションを初期化しています...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (initError) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="text-center">
+          <p className="text-red-600 mb-4">エラーが発生しました: {initError}</p>
+          <button
+            onClick={() => window.location.reload()}
+            className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700"
+          >
+            再読み込み
+          </button>
         </div>
       </div>
     );

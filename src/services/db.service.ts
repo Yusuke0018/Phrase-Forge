@@ -101,7 +101,8 @@ export async function getTodaysPhrases(): Promise<Phrase[]> {
 export async function updatePhraseReviewDate(
   phraseId: string,
   nextReviewDate: Date,
-  interval: string
+  interval: string,
+  difficulty: number = 0.5
 ): Promise<void> {
   const phrase = await db.phrases.get(phraseId);
   if (!phrase) throw new Error('Phrase not found');
@@ -113,7 +114,7 @@ export async function updatePhraseReviewDate(
       {
         date: new Date(),
         interval: interval as any,
-        difficulty: 0.5 // TODO: 実際の難易度計算を実装
+        difficulty: difficulty
       }
     ],
     updatedAt: new Date()
