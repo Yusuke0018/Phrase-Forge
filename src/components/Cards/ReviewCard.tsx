@@ -60,7 +60,7 @@ export function ReviewCard({ phrase }: ReviewCardProps) {
   return (
     <div className="relative">
       <motion.div
-        className="bg-white rounded-lg shadow-lg p-8 cursor-pointer select-none"
+        className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-8 cursor-pointer select-none"
         whileTap={{ scale: 0.98 }}
         {...swipeHandlers}
         onClick={() => {
@@ -70,20 +70,20 @@ export function ReviewCard({ phrase }: ReviewCardProps) {
         }}
       >
         {/* 次回レビュー日表示 */}
-        <div className="absolute top-4 right-4 text-sm text-gray-500">
+        <div className="absolute top-4 right-4 text-sm text-gray-500 dark:text-gray-400">
           次回: {format(phrase.nextReviewDate, 'yyyy/MM/dd')}
         </div>
 
         {/* カード内容 */}
         <div className="min-h-[200px] flex flex-col justify-center">
           {/* 英語フレーズ */}
-          <h2 className="text-2xl font-bold text-gray-800 mb-4 text-center">
+          <h2 className="text-2xl font-bold text-gray-800 dark:text-gray-100 mb-4 text-center">
             {phrase.english}
           </h2>
 
           {/* 発音記号 */}
           {phrase.pronunciation && (
-            <p className="text-lg text-gray-600 mb-6 text-center">
+            <p className="text-lg text-gray-600 dark:text-gray-400 mb-6 text-center">
               /{phrase.pronunciation}/
             </p>
           )}
@@ -96,7 +96,7 @@ export function ReviewCard({ phrase }: ReviewCardProps) {
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -20 }}
                 transition={{ duration: 0.3 }}
-                className="text-xl text-gray-700 text-center"
+                className="text-xl text-gray-700 dark:text-gray-300 text-center"
               >
                 {phrase.japanese}
               </motion.div>
@@ -106,9 +106,9 @@ export function ReviewCard({ phrase }: ReviewCardProps) {
           {/* 表示/非表示アイコン */}
           <div className="mt-4 flex justify-center">
             {showTranslation ? (
-              <FiEyeOff className="w-6 h-6 text-gray-400" />
+              <FiEyeOff className="w-6 h-6 text-gray-400 dark:text-gray-500" />
             ) : (
-              <FiEye className="w-6 h-6 text-gray-400" />
+              <FiEye className="w-6 h-6 text-gray-400 dark:text-gray-500" />
             )}
           </div>
         </div>
@@ -119,7 +119,7 @@ export function ReviewCard({ phrase }: ReviewCardProps) {
             {phrase.tags.map((tag) => (
               <span
                 key={tag}
-                className="px-3 py-1 bg-gray-100 text-gray-600 rounded-full text-sm"
+                className="px-3 py-1 bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400 rounded-full text-sm"
               >
                 {tag}
               </span>
@@ -131,7 +131,7 @@ export function ReviewCard({ phrase }: ReviewCardProps) {
       {/* 難易度選択 */}
       {showTranslation && (
         <div className="mt-4 px-4">
-          <p className="text-sm text-gray-600 mb-2 text-center">どのくらい難しかったですか？</p>
+          <p className="text-sm text-gray-600 dark:text-gray-400 mb-2 text-center">どのくらい難しかったですか？</p>
           <div className="flex justify-center gap-2">
             <button
               onClick={() => setSelectedDifficulty(0.2)}

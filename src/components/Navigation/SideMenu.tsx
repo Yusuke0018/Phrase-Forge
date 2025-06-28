@@ -1,3 +1,5 @@
+'use client';
+
 /**
  * @file components/Navigation/SideMenu.tsx
  * @description スワイプ対応サイドメニューコンポーネント
@@ -20,7 +22,8 @@ import {
   FiBarChart2, 
   FiSettings,
   FiMenu,
-  FiX
+  FiX,
+  FiPlay
 } from 'react-icons/fi';
 import { useMenuSwipe } from '@/hooks/useSwipe';
 
@@ -35,6 +38,7 @@ const menuItems: MenuItem[] = [
   { id: 'home', label: '今日の鍛錬', icon: FiHome, path: '/' },
   { id: 'arsenal', label: '武器庫', icon: FiSearch, path: '/arsenal' },
   { id: 'dojo', label: '道場', icon: FiTarget, path: '/dojo' },
+  { id: 'practice', label: '練習', icon: FiPlay, path: '/practice' },
   { id: 'chronicle', label: '年代記', icon: FiBarChart2, path: '/chronicle' },
   { id: 'settings', label: '設定', icon: FiSettings, path: '/settings' },
 ];
@@ -71,13 +75,13 @@ export function SideMenu() {
       {/* ハンバーガーメニューボタン */}
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="fixed top-4 left-4 z-50 p-2 rounded-lg bg-white shadow-md hover:shadow-lg transition-shadow"
+        className="fixed top-4 left-4 z-50 p-2 rounded-lg bg-white dark:bg-gray-800 shadow-md hover:shadow-lg transition-shadow"
         aria-label="メニューを開く"
       >
         {isOpen ? (
-          <FiX className="w-6 h-6 text-gray-700" />
+          <FiX className="w-6 h-6 text-gray-700 dark:text-gray-200" />
         ) : (
-          <FiMenu className="w-6 h-6 text-gray-700" />
+          <FiMenu className="w-6 h-6 text-gray-700 dark:text-gray-200" />
         )}
       </button>
 
@@ -103,14 +107,14 @@ export function SideMenu() {
             animate={{ x: 0 }}
             exit={{ x: '-100%' }}
             transition={{ type: 'spring', damping: 25, stiffness: 200 }}
-            className="fixed top-0 left-0 h-full w-64 bg-white shadow-xl z-50"
+            className="fixed top-0 left-0 h-full w-64 bg-white dark:bg-gray-800 shadow-xl z-50"
             {...swipeHandlers}
           >
             <div className="flex flex-col h-full">
               {/* ヘッダー */}
-              <div className="p-6 border-b border-gray-200">
-                <h2 className="text-2xl font-bold text-gray-800">Phrase Forge</h2>
-                <p className="text-sm text-gray-600 mt-1">言葉を鍛える道場</p>
+              <div className="p-6 border-b border-gray-200 dark:border-gray-700">
+                <h2 className="text-2xl font-bold text-gray-800 dark:text-gray-100">Phrase Forge</h2>
+                <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">言葉を鍛える道場</p>
               </div>
 
               {/* メニュー項目 */}
@@ -127,8 +131,8 @@ export function SideMenu() {
                         w-full px-6 py-3 flex items-center gap-4 
                         transition-colors duration-200
                         ${isActive 
-                          ? 'bg-blue-50 text-blue-600 border-r-4 border-blue-600' 
-                          : 'text-gray-700 hover:bg-gray-50'
+                          ? 'bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 border-r-4 border-blue-600 dark:border-blue-400' 
+                          : 'text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700'
                         }
                       `}
                     >
@@ -140,8 +144,8 @@ export function SideMenu() {
               </nav>
 
               {/* フッター */}
-              <div className="p-4 border-t border-gray-200">
-                <p className="text-xs text-gray-500 text-center">
+              <div className="p-4 border-t border-gray-200 dark:border-gray-700">
+                <p className="text-xs text-gray-500 dark:text-gray-400 text-center">
                   v1.0.0 • Made with ❤️
                 </p>
               </div>

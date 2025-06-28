@@ -12,7 +12,7 @@
 
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { 
   FiTarget, FiBell, FiMoon, FiSun, FiMonitor,
@@ -22,12 +22,35 @@ import {
 import { useSettingsStore } from '@/stores/settings.store';
 import { ExportDialog } from '@/components/Export/ExportDialog';
 import { ImportDialog } from '@/components/Import/ImportDialog';
+import { notificationService } from '@/services/notification.service';
 
 export default function SettingsPage() {
   const settings = useSettingsStore();
   const [showExportDialog, setShowExportDialog] = useState(false);
   const [showImportDialog, setShowImportDialog] = useState(false);
   const [showResetConfirm, setShowResetConfirm] = useState(false);
+  const [notificationPermission, setNotificationPermission] = useState<NotificationPermission>('default');
+
+  useEffect(() => {
+    // 通知権限の状態を確認
+    if (notificationService.isSupported) {
+      setNotificationPermission(Notification.permission);
+    }
+
+    // 通知設定が有効で時刻が設定されている場合、リマインダーを設定
+    if (settings.enableNotifications && settings.notificationTime) {
+      const [hour, minute] = settings.notificationTime.split(':').map(Number);
+      notificationService.setDailyReminder(hour, minute);
+    } else {
+      // 通知が無効の場合はリマインダーをキャンセル
+      notificationService.cancelDailyReminder();
+    }
+
+    // クリーンアップ: コンポーネントのアンマウント時にリマインダーをキャンセル
+    return () => {
+      notificationService.cancelDailyReminder();
+    };
+  }, [settings.enableNotifications, settings.notificationTime]);
 
   const handleThemeChange = (theme: 'light' | 'dark' | 'system') => {
     settings.updateSettings({ theme });
@@ -85,7 +108,17 @@ export default function SettingsPage() {
                 リマインダー通知
               </label>
               <button
-                onClick={() => settings.updateSettings({ enableNotifications: !settings.enableNotifications })}
+                onClick={async () => {
+                  if (!settings.enableNotifications && notificationService.isSupported) {
+                    const granted = await notificationService.requestPermission();
+                    if (granted) {
+                      settings.updateSettings({ enableNotifications: true });
+                      setNotificationPermission('granted');
+                    }
+                  } else {
+                    settings.updateSettings({ enableNotifications: !settings.enableNotifications });
+                  }
+                }}
                 className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors
                   ${settings.enableNotifications ? 'bg-primary-600' : 'bg-gray-200'}`}
               >
@@ -97,13 +130,20 @@ export default function SettingsPage() {
             </div>
             
             {settings.enableNotifications && (
-              <input
-                type="time"
-                value={settings.notificationTime}
-                onChange={(e) => settings.updateSettings({ notificationTime: e.target.value })}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg 
-                         focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
-              />
+              <>
+                <input
+                  type="time"
+                  value={settings.notificationTime}
+                  onChange={(e) => settings.updateSettings({ notificationTime: e.target.value })}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg 
+                           focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                />
+                {notificationPermission === 'denied' && (
+                  <p className="text-sm text-red-600 mt-2">
+                    通知が拒否されています。ブラウザの設定から通知を許可してください。
+                  </p>
+                )}
+              </>
             )}
           </div>
         </div>

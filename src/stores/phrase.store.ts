@@ -26,6 +26,10 @@ interface PhraseStore {
   isLoading: boolean;
   error: string | null;
   
+  // キャッシュ
+  statsCache: any | null;
+  statsCacheTimestamp: number;
+  
   // アクション
   loadPhrases: () => Promise<void>;
   loadCategories: () => Promise<void>;
@@ -56,6 +60,8 @@ export const usePhraseStore = create<PhraseStore>((set, get) => ({
   currentPhraseIndex: 0,
   isLoading: false,
   error: null,
+  statsCache: null,
+  statsCacheTimestamp: 0,
 
   // データ読み込み
   loadPhrases: async () => {
@@ -114,6 +120,9 @@ export const usePhraseStore = create<PhraseStore>((set, get) => ({
       await db.stats.where('id').equals('main').modify((stats) => {
         stats.totalPhrases++;
       });
+      
+      // キャッシュを無効化
+      set({ statsCache: null });
     } catch (error) {
       set({ error: (error as Error).message });
     }
@@ -130,6 +139,9 @@ export const usePhraseStore = create<PhraseStore>((set, get) => ({
         p.id === id ? { ...p, ...updates, updatedAt: new Date() } : p
       );
       set({ phrases });
+      
+      // キャッシュを無効化（レビュー履歴が変更される可能性があるため）
+      set({ statsCache: null });
     } catch (error) {
       set({ error: (error as Error).message });
     }
@@ -145,6 +157,9 @@ export const usePhraseStore = create<PhraseStore>((set, get) => ({
       await db.stats.where('id').equals('main').modify((stats) => {
         stats.totalPhrases--;
       });
+      
+      // キャッシュを無効化
+      set({ statsCache: null });
     } catch (error) {
       set({ error: (error as Error).message });
     }
@@ -202,7 +217,18 @@ export const usePhraseStore = create<PhraseStore>((set, get) => ({
   },
 
   getStats: async () => {
+    const state = get();
+    const CACHE_DURATION = 5 * 60 * 1000; // 5分間キャッシュ
+    
+    // キャッシュが有効な場合は返す
+    if (state.statsCache && Date.now() - state.statsCacheTimestamp < CACHE_DURATION) {
+      return state.statsCache;
+    }
+    
     const stats = await db.stats.where('id').equals('main').first();
+    
+    // 効率的なデータ取得のため、必要な部分のみを取得
+    const phrasesCount = await db.phrases.count();
     const phrases = await db.phrases.toArray();
     
     // カテゴリ別統計
@@ -252,14 +278,45 @@ export const usePhraseStore = create<PhraseStore>((set, get) => ({
       else masteryLevels.advanced++;
     });
 
-    return {
+    // 月間レビュー数を計算
+    const currentMonth = new Date();
+    const firstDayOfMonth = new Date(currentMonth.getFullYear(), currentMonth.getMonth(), 1);
+    const lastDayOfMonth = new Date(currentMonth.getFullYear(), currentMonth.getMonth() + 1, 0);
+    
+    const monthlyReviews = phrases.reduce((total, phrase) => {
+      return total + phrase.reviewHistory.filter(review => {
+        const reviewDate = new Date(review.date);
+        return reviewDate >= firstDayOfMonth && reviewDate <= lastDayOfMonth;
+      }).length;
+    }, 0);
+
+    // 平均習熟度を計算（難易度の平均値）
+    const averageMastery = phrases.length > 0
+      ? phrases.reduce((sum, phrase) => {
+          // 最新のレビューの難易度を使用
+          const latestReview = phrase.reviewHistory[phrase.reviewHistory.length - 1];
+          return sum + (latestReview?.difficulty || 0.5);
+        }, 0) / phrases.length
+      : 0;
+
+    const result = {
       ...stats,
       categoryStats: Array.from(categoryStats.entries()).map(([id, count]) => ({
         categoryId: id,
         count
       })),
       dailyStats,
-      masteryLevels
+      masteryLevels,
+      monthlyReviews,
+      averageMastery: Math.round(averageMastery * 100) // パーセンテージとして表示
     };
+    
+    // 結果をキャッシュに保存
+    set({ 
+      statsCache: result,
+      statsCacheTimestamp: Date.now()
+    });
+    
+    return result;
   },
 }))
