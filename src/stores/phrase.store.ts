@@ -173,6 +173,9 @@ export const usePhraseStore = create<PhraseStore>((set, get) => ({
         id: crypto.randomUUID(),
         name: name.trim(),
         icon: '📁', // デフォルトアイコン
+        color: '#3B82F6', // デフォルトカラー
+        createdAt: new Date(),
+        updatedAt: new Date()
       };
       
       await db.categories.add(newCategory);

@@ -15,8 +15,7 @@
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { 
-  FiTarget, FiBell, FiMoon, FiSun, FiMonitor,
-  FiType, FiSliders, FiDownload, FiUpload, 
+  FiTarget, FiBell, FiSliders, FiDownload, FiUpload, 
   FiInfo, FiRefreshCw
 } from 'react-icons/fi';
 import { useSettingsStore } from '@/stores/settings.store';
@@ -52,13 +51,6 @@ export default function SettingsPage() {
     };
   }, [settings.enableNotifications, settings.notificationTime]);
 
-  const handleThemeChange = (theme: 'light' | 'dark' | 'system') => {
-    settings.updateSettings({ theme });
-  };
-
-  const handleFontSizeChange = (fontSize: 'small' | 'medium' | 'large') => {
-    settings.updateSettings({ fontSize });
-  };
 
   const handleReset = () => {
     settings.resetSettings();
@@ -67,12 +59,12 @@ export default function SettingsPage() {
 
   return (
     <div className="max-w-2xl mx-auto px-4 py-6 pt-20">
-      <h1 className="text-3xl font-bold text-gray-800 mb-6">設定</h1>
+      <h1 className="text-3xl font-bold text-gray-800 dark:text-gray-100 mb-6">設定</h1>
       
       {/* 学習設定 */}
-      <section className="bg-white rounded-lg shadow-md mb-6">
-        <div className="p-6 border-b border-gray-200">
-          <h2 className="text-xl font-bold text-gray-800 flex items-center gap-2">
+      <section className="bg-white dark:bg-gray-800 rounded-lg shadow-md mb-6">
+        <div className="p-6 border-b border-gray-200 dark:border-gray-700">
+          <h2 className="text-xl font-bold text-gray-800 dark:text-gray-100 flex items-center gap-2">
             <FiTarget className="w-5 h-5 text-primary-600" />
             学習設定
           </h2>
@@ -149,136 +141,11 @@ export default function SettingsPage() {
         </div>
       </section>
 
-      {/* UI設定 */}
-      <section className="bg-white rounded-lg shadow-md mb-6">
-        <div className="p-6 border-b border-gray-200">
-          <h2 className="text-xl font-bold text-gray-800">UI設定</h2>
-        </div>
-        
-        <div className="p-6 space-y-4">
-          {/* テーマ設定 */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-3">
-              テーマ
-            </label>
-            <div className="grid grid-cols-3 gap-3">
-              <button
-                onClick={() => handleThemeChange('light')}
-                className={`p-3 rounded-lg border-2 transition-colors flex flex-col items-center gap-2
-                  ${settings.theme === 'light' 
-                    ? 'border-primary-500 bg-primary-50' 
-                    : 'border-gray-200 hover:border-gray-300'}`}
-              >
-                <FiSun className="w-6 h-6" />
-                <span className="text-sm">ライト</span>
-              </button>
-              
-              <button
-                onClick={() => handleThemeChange('dark')}
-                className={`p-3 rounded-lg border-2 transition-colors flex flex-col items-center gap-2
-                  ${settings.theme === 'dark' 
-                    ? 'border-primary-500 bg-primary-50' 
-                    : 'border-gray-200 hover:border-gray-300'}`}
-              >
-                <FiMoon className="w-6 h-6" />
-                <span className="text-sm">ダーク</span>
-              </button>
-              
-              <button
-                onClick={() => handleThemeChange('system')}
-                className={`p-3 rounded-lg border-2 transition-colors flex flex-col items-center gap-2
-                  ${settings.theme === 'system' 
-                    ? 'border-primary-500 bg-primary-50' 
-                    : 'border-gray-200 hover:border-gray-300'}`}
-              >
-                <FiMonitor className="w-6 h-6" />
-                <span className="text-sm">システム</span>
-              </button>
-            </div>
-          </div>
-
-          {/* フォントサイズ */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-3">
-              フォントサイズ
-            </label>
-            <div className="grid grid-cols-3 gap-3">
-              <button
-                onClick={() => handleFontSizeChange('small')}
-                className={`p-3 rounded-lg border-2 transition-colors flex items-center justify-center
-                  ${settings.fontSize === 'small' 
-                    ? 'border-primary-500 bg-primary-50' 
-                    : 'border-gray-200 hover:border-gray-300'}`}
-              >
-                <FiType className="w-4 h-4" />
-                <span className="ml-2 text-sm">小</span>
-              </button>
-              
-              <button
-                onClick={() => handleFontSizeChange('medium')}
-                className={`p-3 rounded-lg border-2 transition-colors flex items-center justify-center
-                  ${settings.fontSize === 'medium' 
-                    ? 'border-primary-500 bg-primary-50' 
-                    : 'border-gray-200 hover:border-gray-300'}`}
-              >
-                <FiType className="w-5 h-5" />
-                <span className="ml-2">中</span>
-              </button>
-              
-              <button
-                onClick={() => handleFontSizeChange('large')}
-                className={`p-3 rounded-lg border-2 transition-colors flex items-center justify-center
-                  ${settings.fontSize === 'large' 
-                    ? 'border-primary-500 bg-primary-50' 
-                    : 'border-gray-200 hover:border-gray-300'}`}
-              >
-                <FiType className="w-6 h-6" />
-                <span className="ml-2 text-lg">大</span>
-              </button>
-            </div>
-          </div>
-
-          {/* その他のUI設定 */}
-          <div className="space-y-3">
-            <div className="flex items-center justify-between">
-              <label className="text-sm font-medium text-gray-700">
-                触覚フィードバック
-              </label>
-              <button
-                onClick={() => settings.updateSettings({ enableHapticFeedback: !settings.enableHapticFeedback })}
-                className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors
-                  ${settings.enableHapticFeedback ? 'bg-primary-600' : 'bg-gray-200'}`}
-              >
-                <span
-                  className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform
-                    ${settings.enableHapticFeedback ? 'translate-x-6' : 'translate-x-1'}`}
-                />
-              </button>
-            </div>
-
-            <div className="flex items-center justify-between">
-              <label className="text-sm font-medium text-gray-700">
-                効果音
-              </label>
-              <button
-                onClick={() => settings.updateSettings({ enableSoundEffects: !settings.enableSoundEffects })}
-                className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors
-                  ${settings.enableSoundEffects ? 'bg-primary-600' : 'bg-gray-200'}`}
-              >
-                <span
-                  className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform
-                    ${settings.enableSoundEffects ? 'translate-x-6' : 'translate-x-1'}`}
-                />
-              </button>
-            </div>
-          </div>
-        </div>
-      </section>
 
       {/* スワイプ設定 */}
-      <section className="bg-white rounded-lg shadow-md mb-6">
-        <div className="p-6 border-b border-gray-200">
-          <h2 className="text-xl font-bold text-gray-800 flex items-center gap-2">
+      <section className="bg-white dark:bg-gray-800 rounded-lg shadow-md mb-6">
+        <div className="p-6 border-b border-gray-200 dark:border-gray-700">
+          <h2 className="text-xl font-bold text-gray-800 dark:text-gray-100 flex items-center gap-2">
             <FiSliders className="w-5 h-5 text-primary-600" />
             スワイプ設定
           </h2>

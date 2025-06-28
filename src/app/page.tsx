@@ -12,11 +12,14 @@
 
 'use client';
 
+import { useState } from 'react';
 import { format } from 'date-fns';
 import { ja } from 'date-fns/locale';
+import { FiPlus } from 'react-icons/fi';
 import { usePhraseStore } from '@/stores/phrase.store';
 import { ReviewCard } from '@/components/Cards/ReviewCard';
 import { useAppInitializer } from '@/hooks/useAppInitializer';
+import { AddPhraseModal } from '@/components/UI/AddPhraseModal';
 
 export default function HomePage() {
   const { isInitializing, initError } = useAppInitializer();
@@ -25,6 +28,7 @@ export default function HomePage() {
     currentPhraseIndex,
     loadTodaysPhrases
   } = usePhraseStore();
+  const [isAddModalOpen, setIsAddModalOpen] = useState(false);
 
   const currentPhrase = todaysPhrases[currentPhraseIndex];
   const today = new Date();
@@ -59,18 +63,32 @@ export default function HomePage() {
 
   return (
     <div className="max-w-2xl mx-auto px-4 py-6 pt-20">
-      {/* 日付表示 */}
-      <div className="text-center mb-6">
-        <h1 className="text-2xl font-bold text-gray-800 dark:text-gray-100">
-          {format(today, 'yyyy年M月d日 (E)', { locale: ja })}
-        </h1>
-        
-        {/* 進捗表示 */}
-        {todaysPhrases.length > 0 && (
-          <p className="mt-2 text-lg text-gray-600 dark:text-gray-400">
-            本日 {currentPhraseIndex + 1} / {todaysPhrases.length} 枚目
-          </p>
-        )}
+      {/* ヘッダーとフレーズ追加ボタン */}
+      <div className="flex justify-between items-start mb-6">
+        {/* 日付表示 */}
+        <div>
+          <h1 className="text-2xl font-bold text-gray-800 dark:text-gray-100">
+            {format(today, 'yyyy年M月d日 (E)', { locale: ja })}
+          </h1>
+          
+          {/* 進捗表示 */}
+          {todaysPhrases.length > 0 && (
+            <p className="mt-2 text-lg text-gray-600 dark:text-gray-400">
+              本日 {currentPhraseIndex + 1} / {todaysPhrases.length} 枚目
+            </p>
+          )}
+        </div>
+
+        {/* フレーズ追加ボタン */}
+        <button
+          onClick={() => setIsAddModalOpen(true)}
+          className="px-4 py-2 bg-primary-600 text-white rounded-lg 
+                   hover:bg-primary-700 transition-colors flex items-center gap-2
+                   shadow-md hover:shadow-lg"
+        >
+          <FiPlus className="w-5 h-5" />
+          <span className="hidden sm:inline">追加</span>
+        </button>
       </div>
 
       {/* メインコンテンツ */}
@@ -102,6 +120,16 @@ export default function HomePage() {
           </p>
         </div>
       )}
+
+      {/* フレーズ追加モーダル */}
+      <AddPhraseModal 
+        isOpen={isAddModalOpen} 
+        onClose={() => {
+          setIsAddModalOpen(false);
+          // モーダルを閉じた後、今日のフレーズを再読み込み
+          loadTodaysPhrases();
+        }} 
+      />
     </div>
   );
 }
