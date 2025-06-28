@@ -36,7 +36,6 @@ export default function ArsenalPage() {
   } = usePhraseStore();
 
   const [searchQuery, setSearchQuery] = useState('');
-  const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [selectedTag, setSelectedTag] = useState<string>('all');
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
@@ -64,11 +63,6 @@ export default function ArsenalPage() {
         filtered = await searchPhrases(searchQuery);
       }
 
-      // カテゴリフィルタ
-      if (selectedCategory !== 'all') {
-        filtered = await filterByCategory(selectedCategory);
-      }
-
       // タグフィルタ
       if (selectedTag !== 'all') {
         filtered = await filterByTag(selectedTag);
@@ -78,7 +72,7 @@ export default function ArsenalPage() {
     };
 
     filterPhrases();
-  }, [searchQuery, selectedCategory, selectedTag, phrases, searchPhrases, filterByCategory, filterByTag]);
+  }, [searchQuery, selectedTag, phrases, searchPhrases, filterByTag]);
 
   if (isLoading) {
     return (
@@ -101,12 +95,13 @@ export default function ArsenalPage() {
         </div>
         <button
           onClick={() => setIsAddModalOpen(true)}
-          className="px-6 py-3 bg-gray-900 text-white rounded-lg 
-                   hover:bg-gray-800 transition-all duration-200 flex items-center gap-2
-                   shadow-lg hover:shadow-xl hover:scale-105"
+          className="w-12 h-12 bg-gray-900 text-white rounded-full 
+                   hover:bg-gray-800 transition-all duration-200 flex items-center justify-center
+                   shadow-lg hover:shadow-xl hover:scale-110"
+          aria-label="フレーズを追加"
         >
           <svg 
-            className="w-5 h-5" 
+            className="w-6 h-6" 
             fill="none" 
             stroke="currentColor" 
             viewBox="0 0 24 24" 
@@ -119,7 +114,6 @@ export default function ArsenalPage() {
               d="M12 4v16m8-8H4" 
             />
           </svg>
-          <span>フレーズを追加</span>
         </button>
       </div>
 
@@ -184,26 +178,6 @@ export default function ArsenalPage() {
             exit={{ height: 0, opacity: 0 }}
             className="border-t pt-4 flex flex-wrap gap-4"
           >
-            {/* カテゴリフィルター */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                カテゴリ
-              </label>
-              <select
-                value={selectedCategory}
-                onChange={(e) => setSelectedCategory(e.target.value)}
-                className="px-3 py-1 border border-gray-300 rounded-lg text-sm
-                         focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
-              >
-                <option value="all">すべて</option>
-                {categories.map((category) => (
-                  <option key={category.id} value={category.id}>
-                    {category.icon} {category.name}
-                  </option>
-                ))}
-              </select>
-            </div>
-
             {/* タグフィルター */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -228,7 +202,7 @@ export default function ArsenalPage() {
       </div>
 
       {/* フレーズ統計 */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-6">
+      <div className="grid grid-cols-3 gap-3 mb-6">
         <div className="bg-white rounded-lg shadow-sm p-4 text-center">
           <p className="text-2xl font-bold text-gray-800">{phrases.length}</p>
           <p className="text-sm text-gray-600">総フレーズ数</p>
@@ -236,10 +210,6 @@ export default function ArsenalPage() {
         <div className="bg-white rounded-lg shadow-sm p-4 text-center">
           <p className="text-2xl font-bold text-primary-600">{displayedPhrases.length}</p>
           <p className="text-sm text-gray-600">検索結果</p>
-        </div>
-        <div className="bg-white rounded-lg shadow-sm p-4 text-center">
-          <p className="text-2xl font-bold text-green-600">{categories.length}</p>
-          <p className="text-sm text-gray-600">カテゴリ数</p>
         </div>
         <div className="bg-white rounded-lg shadow-sm p-4 text-center">
           <p className="text-2xl font-bold text-purple-600">{tags.length}</p>
