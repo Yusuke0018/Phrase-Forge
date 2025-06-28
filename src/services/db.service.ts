@@ -47,43 +47,18 @@ export async function initializeDB() {
   const count = await db.categories.count();
   
   if (count === 0) {
-    // デフォルトカテゴリを作成
-    await db.categories.bulkAdd([
-      {
-        id: 'daily',
-        name: '日常会話',
-        color: '#3B82F6',
-        icon: '💬',
-        createdAt: new Date(),
-        updatedAt: new Date()
-      },
-      {
-        id: 'business',
-        name: 'ビジネス',
-        color: '#10B981',
-        icon: '💼',
-        createdAt: new Date(),
-        updatedAt: new Date()
-      },
-      {
-        id: 'travel',
-        name: '旅行',
-        color: '#F59E0B',
-        icon: '✈️',
-        createdAt: new Date(),
-        updatedAt: new Date()
-      }
-    ]);
-
-    // 初期統計データ
-    await db.stats.add({
-      id: 'main',
-      totalPhrases: 0,
-      phrasesLearned: 0,
-      currentStreak: 0,
-      longestStreak: 0,
-      totalReviews: 0
-    });
+    // 初期統計データのみ作成（カテゴリはユーザーが自分で作成）
+    const statsCount = await db.stats.count();
+    if (statsCount === 0) {
+      await db.stats.add({
+        id: 'main',
+        totalPhrases: 0,
+        phrasesLearned: 0,
+        currentStreak: 0,
+        longestStreak: 0,
+        totalReviews: 0
+      });
+    }
   }
 }
 

@@ -40,6 +40,8 @@ interface PhraseStore {
   updatePhrase: (id: string, updates: Partial<Phrase>) => Promise<void>;
   deletePhrase: (id: string) => Promise<void>;
   
+  addCategory: (name: string) => Promise<string>;
+  
   setCurrentPhraseIndex: (index: number) => void;
   moveToNextPhrase: () => void;
   removeReviewedPhrase: (phraseId: string) => void;
@@ -162,6 +164,27 @@ export const usePhraseStore = create<PhraseStore>((set, get) => ({
       set({ statsCache: null });
     } catch (error) {
       set({ error: (error as Error).message });
+    }
+  },
+
+  addCategory: async (name) => {
+    try {
+      const newCategory = {
+        id: crypto.randomUUID(),
+        name: name.trim(),
+        icon: '📁', // デフォルトアイコン
+      };
+      
+      await db.categories.add(newCategory);
+      
+      // カテゴリリストを再読み込み
+      const categories = await db.categories.toArray();
+      set({ categories });
+      
+      return newCategory.id;
+    } catch (error) {
+      set({ error: (error as Error).message });
+      throw error;
     }
   },
 

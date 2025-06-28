@@ -22,14 +22,16 @@ interface AddPhraseModalProps {
 }
 
 export function AddPhraseModal({ isOpen, onClose }: AddPhraseModalProps) {
-  const { categories, tags, addPhrase } = usePhraseStore();
+  const { categories, tags, addPhrase, addCategory } = usePhraseStore();
   const [formData, setFormData] = useState({
     english: '',
     japanese: '',
     pronunciation: '',
-    categoryId: 'daily',
+    categoryId: categories.length > 0 ? categories[0].id : '',
     tagInput: '',
     selectedTags: [] as string[],
+    newCategoryName: '',
+    isCreatingCategory: false,
   });
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -40,11 +42,24 @@ export function AddPhraseModal({ isOpen, onClose }: AddPhraseModalProps) {
     }
 
     try {
+      let categoryId = formData.categoryId;
+      
+      // 新しいカテゴリを作成する場合
+      if (formData.isCreatingCategory && formData.newCategoryName.trim()) {
+        categoryId = await addCategory(formData.newCategoryName.trim());
+      }
+      
+      // カテゴリが選択されていない、または存在しない場合はエラー
+      if (!categoryId && categories.length === 0 && !formData.isCreatingCategory) {
+        alert('カテゴリを作成してください');
+        return;
+      }
+      
       await addPhrase({
         english: formData.english.trim(),
         japanese: formData.japanese.trim(),
         pronunciation: formData.pronunciation.trim(),
-        categoryId: formData.categoryId,
+        categoryId: categoryId,
         tags: formData.selectedTags,
         nextReviewDate: calculateNextReviewDate('tomorrow'),
         reviewHistory: [],
@@ -55,9 +70,11 @@ export function AddPhraseModal({ isOpen, onClose }: AddPhraseModalProps) {
         english: '',
         japanese: '',
         pronunciation: '',
-        categoryId: 'daily',
+        categoryId: categories.length > 0 ? categories[0].id : '',
         tagInput: '',
         selectedTags: [],
+        newCategoryName: '',
+        isCreatingCategory: false,
       });
       
       onClose();
@@ -174,18 +191,67 @@ export function AddPhraseModal({ isOpen, onClose }: AddPhraseModalProps) {
                   <label className="block text-sm font-medium text-gray-700 mb-1">
                     カテゴリ
                   </label>
-                  <select
-                    value={formData.categoryId}
-                    onChange={(e) => setFormData({ ...formData, categoryId: e.target.value })}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg 
-                             focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
-                  >
-                    {categories.map((category) => (
-                      <option key={category.id} value={category.id}>
-                        {category.icon} {category.name}
-                      </option>
-                    ))}
-                  </select>
+                  {!formData.isCreatingCategory ? (
+                    <div className="flex gap-2">
+                      {categories.length > 0 ? (
+                        <select
+                          value={formData.categoryId}
+                          onChange={(e) => setFormData({ ...formData, categoryId: e.target.value })}
+                          className="flex-1 px-4 py-2 border border-gray-300 rounded-lg 
+                                   focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                        >
+                          {categories.map((category) => (
+                            <option key={category.id} value={category.id}>
+                              {category.icon} {category.name}
+                            </option>
+                          ))}
+                        </select>
+                      ) : (
+                        <div className="flex-1 px-4 py-2 border border-gray-300 rounded-lg bg-gray-50 text-gray-500">
+                          カテゴリを作成してください
+                        </div>
+                      )}
+                      <button
+                        type="button"
+                        onClick={() => setFormData({ ...formData, isCreatingCategory: true })}
+                        className="px-4 py-2 bg-gray-200 hover:bg-gray-300 rounded-lg 
+                                 transition-colors"
+                        title="新しいカテゴリを作成"
+                      >
+                        <FiPlus className="w-5 h-5" />
+                      </button>
+                    </div>
+                  ) : (
+                    <div className="flex gap-2">
+                      <input
+                        type="text"
+                        value={formData.newCategoryName}
+                        onChange={(e) => setFormData({ ...formData, newCategoryName: e.target.value })}
+                        className="flex-1 px-4 py-2 border border-gray-300 rounded-lg 
+                                 focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                        placeholder="新しいカテゴリ名"
+                        autoFocus
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setFormData({ 
+                          ...formData, 
+                          isCreatingCategory: false, 
+                          newCategoryName: '' 
+                        })}
+                        className="px-4 py-2 bg-gray-200 hover:bg-gray-300 rounded-lg 
+                                 transition-colors"
+                        title="キャンセル"
+                      >
+                        <FiX className="w-5 h-5" />
+                      </button>
+                    </div>
+                  )}
+                  {formData.isCreatingCategory && formData.newCategoryName && (
+                    <p className="mt-1 text-sm text-gray-600">
+                      「{formData.newCategoryName}」として新規作成されます
+                    </p>
+                  )}
                 </div>
 
                 {/* タグ */}

@@ -94,9 +94,20 @@ export default function ArsenalPage() {
   return (
     <div className="max-w-4xl mx-auto px-4 py-6 pt-20">
       {/* ヘッダー */}
-      <div className="mb-6">
-        <h1 className="text-3xl font-bold text-gray-800 mb-2">武器庫</h1>
-        <p className="text-gray-600">すべてのフレーズを管理</p>
+      <div className="mb-6 flex justify-between items-start">
+        <div>
+          <h1 className="text-3xl font-bold text-gray-800 dark:text-gray-100 mb-2">武器庫</h1>
+          <p className="text-gray-600 dark:text-gray-400">すべてのフレーズを管理</p>
+        </div>
+        <button
+          onClick={() => setIsAddModalOpen(true)}
+          className="px-6 py-3 bg-primary-600 text-white rounded-lg 
+                   hover:bg-primary-700 transition-colors flex items-center gap-2
+                   shadow-md hover:shadow-lg"
+        >
+          <FiPlus className="w-5 h-5" />
+          <span>フレーズを追加</span>
+        </button>
       </div>
 
       {/* 検索バーとアクション */}
