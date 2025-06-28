@@ -15,11 +15,11 @@
 import { useState } from 'react';
 import { format } from 'date-fns';
 import { ja } from 'date-fns/locale';
-import { FiPlus } from 'react-icons/fi';
 import { usePhraseStore } from '@/stores/phrase.store';
 import { ReviewCard } from '@/components/Cards/ReviewCard';
 import { useAppInitializer } from '@/hooks/useAppInitializer';
 import { AddPhraseModal } from '@/components/UI/AddPhraseModal';
+import { FloatingAddButton } from '@/components/UI/FloatingAddButton';
 
 export default function HomePage() {
   const { isInitializing, initError } = useAppInitializer();
@@ -79,16 +79,8 @@ export default function HomePage() {
           )}
         </div>
 
-        {/* フレーズ追加ボタン */}
-        <button
-          onClick={() => setIsAddModalOpen(true)}
-          className="px-4 py-2 bg-primary-600 text-white rounded-lg 
-                   hover:bg-primary-700 transition-colors flex items-center gap-2
-                   shadow-md hover:shadow-lg"
-        >
-          <FiPlus className="w-5 h-5" />
-          <span className="hidden sm:inline">追加</span>
-        </button>
+        {/* スペース確保 */}
+        <div />
       </div>
 
       {/* メインコンテンツ */}
@@ -122,14 +114,16 @@ export default function HomePage() {
       )}
 
       {/* フレーズ追加モーダル */}
-      <AddPhraseModal 
-        isOpen={isAddModalOpen} 
+      <AddPhraseModal
+        isOpen={isAddModalOpen}
         onClose={() => {
           setIsAddModalOpen(false);
           // モーダルを閉じた後、今日のフレーズを再読み込み
           loadTodaysPhrases();
-        }} 
+        }}
       />
+      {/* 追加ボタン */}
+      <FloatingAddButton onClick={() => setIsAddModalOpen(true)} />
     </div>
   );
 }

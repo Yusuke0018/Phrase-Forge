@@ -13,13 +13,14 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { FiSearch, FiPlus, FiFilter, FiEdit2, FiTrash2, FiDownload, FiUpload } from 'react-icons/fi';
+import { FiSearch, FiFilter, FiEdit2, FiTrash2, FiDownload, FiUpload } from 'react-icons/fi';
 import { format } from 'date-fns';
 import { usePhraseStore } from '@/stores/phrase.store';
 import { AddPhraseModal } from '@/components/UI/AddPhraseModal';
 import { EditPhraseModal } from '@/components/UI/EditPhraseModal';
 import { motion } from 'framer-motion';
 import { Phrase } from '@/types/models';
+import { FloatingAddButton } from '@/components/UI/FloatingAddButton';
 
 export default function ArsenalPage() {
   const { 
@@ -99,15 +100,7 @@ export default function ArsenalPage() {
           <h1 className="text-3xl font-bold text-gray-800 dark:text-gray-100 mb-2">武器庫</h1>
           <p className="text-gray-600 dark:text-gray-400">すべてのフレーズを管理</p>
         </div>
-        <button
-          onClick={() => setIsAddModalOpen(true)}
-          className="px-6 py-3 bg-primary-600 text-white rounded-lg 
-                   hover:bg-primary-700 transition-colors flex items-center gap-2
-                   shadow-md hover:shadow-lg"
-        >
-          <FiPlus className="w-5 h-5" />
-          <span>フレーズを追加</span>
-        </button>
+        <div />
       </div>
 
       {/* 検索バーとアクション */}
@@ -138,15 +131,8 @@ export default function ArsenalPage() {
             <span className="hidden sm:inline">フィルター</span>
           </button>
 
-          {/* 追加ボタン */}
-          <button
-            onClick={() => setIsAddModalOpen(true)}
-            className="px-4 py-2 bg-primary-600 text-white rounded-lg 
-                     hover:bg-primary-700 transition-colors flex items-center gap-2"
-          >
-            <FiPlus className="w-5 h-5" />
-            <span className="hidden sm:inline">追加</span>
-          </button>
+          {/* スペース確保 */}
+          <div />
         </div>
 
         {/* フィルターオプション */}
@@ -300,11 +286,12 @@ export default function ArsenalPage() {
       </div>
 
       {/* フレーズ追加モーダル */}
-      <AddPhraseModal 
-        isOpen={isAddModalOpen} 
-        onClose={() => setIsAddModalOpen(false)} 
+      <AddPhraseModal
+        isOpen={isAddModalOpen}
+        onClose={() => setIsAddModalOpen(false)}
       />
-      
+      <FloatingAddButton onClick={() => setIsAddModalOpen(true)} />
+
       {/* フレーズ編集モーダル */}
       <EditPhraseModal
         isOpen={isEditModalOpen}
