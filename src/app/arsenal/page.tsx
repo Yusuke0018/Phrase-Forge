@@ -13,7 +13,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { FiSearch, FiPlus, FiFilter, FiEdit2, FiTrash2 } from 'react-icons/fi';
+import { FiSearch, FiPlus, FiFilter, FiEdit2, FiTrash2, FiDownload, FiUpload } from 'react-icons/fi';
 import { format } from 'date-fns';
 import { usePhraseStore } from '@/stores/phrase.store';
 import { AddPhraseModal } from '@/components/UI/AddPhraseModal';
