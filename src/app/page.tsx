@@ -19,7 +19,6 @@ import { usePhraseStore } from '@/stores/phrase.store';
 import { ReviewCard } from '@/components/Cards/ReviewCard';
 import { useAppInitializer } from '@/hooks/useAppInitializer';
 import { AddPhraseModal } from '@/components/UI/AddPhraseModal';
-import { FloatingAddButton } from '@/components/UI/FloatingAddButton';
 
 export default function HomePage() {
   const { isInitializing, initError } = useAppInitializer();
@@ -79,8 +78,34 @@ export default function HomePage() {
           )}
         </div>
 
-        {/* スペース確保 */}
-        <div />
+        {/* フレーズ追加ボタン */}
+        <button
+          onClick={() => setIsAddModalOpen(true)}
+          className="group relative w-12 h-12 bg-gray-900 text-white rounded-full 
+                   hover:bg-gray-800 transition-all duration-200 flex items-center justify-center
+                   shadow-lg hover:shadow-xl hover:scale-110"
+          aria-label="フレーズを追加"
+        >
+          <svg 
+            className="w-6 h-6" 
+            fill="none" 
+            stroke="currentColor" 
+            viewBox="0 0 24 24" 
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path 
+              strokeLinecap="round" 
+              strokeLinejoin="round" 
+              strokeWidth={2.5} 
+              d="M12 4v16m8-8H4" 
+            />
+          </svg>
+          <span className="absolute -bottom-8 left-1/2 transform -translate-x-1/2 
+                         opacity-0 group-hover:opacity-100 transition-opacity duration-200
+                         text-xs text-gray-600 whitespace-nowrap">
+            フレーズを追加
+          </span>
+        </button>
       </div>
 
       {/* メインコンテンツ */}
@@ -122,8 +147,6 @@ export default function HomePage() {
           loadTodaysPhrases();
         }}
       />
-      {/* 追加ボタン */}
-      <FloatingAddButton onClick={() => setIsAddModalOpen(true)} />
     </div>
   );
 }

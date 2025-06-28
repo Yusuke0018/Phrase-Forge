@@ -20,7 +20,6 @@ import { AddPhraseModal } from '@/components/UI/AddPhraseModal';
 import { EditPhraseModal } from '@/components/UI/EditPhraseModal';
 import { motion } from 'framer-motion';
 import { Phrase } from '@/types/models';
-import { FloatingAddButton } from '@/components/UI/FloatingAddButton';
 
 export default function ArsenalPage() {
   const { 
@@ -100,7 +99,28 @@ export default function ArsenalPage() {
           <h1 className="text-3xl font-bold text-gray-800 dark:text-gray-100 mb-2">武器庫</h1>
           <p className="text-gray-600 dark:text-gray-400">すべてのフレーズを管理</p>
         </div>
-        <div />
+        <button
+          onClick={() => setIsAddModalOpen(true)}
+          className="px-6 py-3 bg-gray-900 text-white rounded-lg 
+                   hover:bg-gray-800 transition-all duration-200 flex items-center gap-2
+                   shadow-lg hover:shadow-xl hover:scale-105"
+        >
+          <svg 
+            className="w-5 h-5" 
+            fill="none" 
+            stroke="currentColor" 
+            viewBox="0 0 24 24" 
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path 
+              strokeLinecap="round" 
+              strokeLinejoin="round" 
+              strokeWidth={2.5} 
+              d="M12 4v16m8-8H4" 
+            />
+          </svg>
+          <span>フレーズを追加</span>
+        </button>
       </div>
 
       {/* 検索バーとアクション */}
@@ -131,8 +151,29 @@ export default function ArsenalPage() {
             <span className="hidden sm:inline">フィルター</span>
           </button>
 
-          {/* スペース確保 */}
-          <div />
+          {/* 追加ボタン */}
+          <button
+            onClick={() => setIsAddModalOpen(true)}
+            className="group relative w-10 h-10 bg-gray-900 text-white rounded-full 
+                     hover:bg-gray-800 transition-all duration-200 flex items-center justify-center
+                     shadow-md hover:shadow-lg hover:scale-110"
+            aria-label="フレーズを追加"
+          >
+            <svg 
+              className="w-5 h-5" 
+              fill="none" 
+              stroke="currentColor" 
+              viewBox="0 0 24 24" 
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path 
+                strokeLinecap="round" 
+                strokeLinejoin="round" 
+                strokeWidth={2.5} 
+                d="M12 4v16m8-8H4" 
+              />
+            </svg>
+          </button>
         </div>
 
         {/* フィルターオプション */}
@@ -290,7 +331,6 @@ export default function ArsenalPage() {
         isOpen={isAddModalOpen}
         onClose={() => setIsAddModalOpen(false)}
       />
-      <FloatingAddButton onClick={() => setIsAddModalOpen(true)} />
 
       {/* フレーズ編集モーダル */}
       <EditPhraseModal

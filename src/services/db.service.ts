@@ -47,7 +47,29 @@ export async function initializeDB() {
   const count = await db.categories.count();
   
   if (count === 0) {
-    // 初期統計データのみ作成（カテゴリはユーザーが自分で作成）
+    // デフォルトカテゴリーを作成
+    const defaultCategories = [
+      {
+        id: crypto.randomUUID(),
+        name: '医療',
+        icon: '🏥',
+        color: '#DC2626',
+        createdAt: new Date(),
+        updatedAt: new Date()
+      },
+      {
+        id: crypto.randomUUID(),
+        name: '日常',
+        icon: '💬',
+        color: '#3B82F6',
+        createdAt: new Date(),
+        updatedAt: new Date()
+      }
+    ];
+    
+    await db.categories.bulkAdd(defaultCategories);
+    
+    // 初期統計データも作成
     const statsCount = await db.stats.count();
     if (statsCount === 0) {
       await db.stats.add({
