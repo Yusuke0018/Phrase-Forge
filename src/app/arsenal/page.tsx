@@ -222,7 +222,7 @@ export default function ArsenalPage() {
         {displayedPhrases.length === 0 ? (
           <div className="p-8 text-center">
             <p className="text-gray-600">
-              {searchQuery || selectedCategory !== 'all' || selectedTag !== 'all'
+              {searchQuery || selectedTag !== 'all'
                 ? 'フレーズが見つかりませんでした。'
                 : 'まだフレーズがありません。「追加」ボタンから新しいフレーズを追加してください。'}
             </p>
