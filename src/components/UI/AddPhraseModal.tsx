@@ -314,10 +314,10 @@ export function AddPhraseModal({ isOpen, onClose }: AddPhraseModalProps) {
                   </button>
                   <button
                     type="submit"
-                    className="flex-1 px-4 py-2 bg-primary-600 text-white rounded-lg 
+                    className="flex-1 px-4 py-2 bg-primary-600 text-white rounded-lg
                              hover:bg-primary-700 transition-colors"
                   >
-                    追加する
+                    作成完了
                   </button>
                 </div>
               </form>
