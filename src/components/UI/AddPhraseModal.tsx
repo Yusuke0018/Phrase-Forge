@@ -105,30 +105,33 @@ export function AddPhraseModal({ isOpen, onClose }: AddPhraseModalProps) {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 bg-black bg-opacity-50 z-50"
+            className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50"
             onClick={onClose}
           />
 
           {/* モーダル */}
           <motion.div
-            initial={{ opacity: 0, scale: 0.9, y: 20 }}
+            initial={{ opacity: 0, scale: 0.95, y: 20 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.9, y: 20 }}
+            exit={{ opacity: 0, scale: 0.95, y: 20 }}
+            transition={{ type: "spring", duration: 0.5 }}
             className="fixed inset-x-4 top-20 md:inset-x-auto md:left-1/2 md:-translate-x-1/2 
-                       max-w-lg w-full bg-white rounded-lg shadow-xl z-50 
-                       max-h-[80vh] overflow-y-auto"
+                       max-w-lg w-full bg-white dark:bg-gray-800 rounded-2xl shadow-2xl z-50 
+                       max-h-[80vh] overflow-y-auto border border-gray-100 dark:border-gray-700"
           >
             <div className="p-6">
               {/* ヘッダー */}
               <div className="flex items-center justify-between mb-6">
-                <h2 className="text-2xl font-bold text-gray-800">
+                <h2 className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 
+                             bg-clip-text text-transparent">
                   新しいフレーズを追加
                 </h2>
                 <button
                   onClick={onClose}
-                  className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+                  className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-xl 
+                           transition-all duration-200 hover:scale-110"
                 >
-                  <FiX className="w-6 h-6 text-gray-600" />
+                  <FiX className="w-6 h-6 text-gray-500 hover:text-gray-700 dark:hover:text-gray-300" />
                 </button>
               </div>
 
@@ -143,8 +146,9 @@ export function AddPhraseModal({ isOpen, onClose }: AddPhraseModalProps) {
                     type="text"
                     value={formData.english}
                     onChange={(e) => setFormData({ ...formData, english: e.target.value })}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg 
-                             focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                    className="w-full px-4 py-3 bg-gray-50 dark:bg-gray-700 border-0 rounded-xl 
+                             focus:ring-2 focus:ring-blue-500 focus:bg-white dark:focus:bg-gray-600
+                             transition-all duration-200 text-lg"
                     placeholder="How are you?"
                     required
                   />
@@ -159,8 +163,9 @@ export function AddPhraseModal({ isOpen, onClose }: AddPhraseModalProps) {
                     type="text"
                     value={formData.japanese}
                     onChange={(e) => setFormData({ ...formData, japanese: e.target.value })}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg 
-                             focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                    className="w-full px-4 py-3 bg-gray-50 dark:bg-gray-700 border-0 rounded-xl 
+                             focus:ring-2 focus:ring-blue-500 focus:bg-white dark:focus:bg-gray-600
+                             transition-all duration-200 text-lg"
                     placeholder="元気ですか？"
                     required
                   />
@@ -175,8 +180,9 @@ export function AddPhraseModal({ isOpen, onClose }: AddPhraseModalProps) {
                     type="text"
                     value={formData.pronunciation}
                     onChange={(e) => setFormData({ ...formData, pronunciation: e.target.value })}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg 
-                             focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                    className="w-full px-4 py-3 bg-gray-50 dark:bg-gray-700 border-0 rounded-xl 
+                             focus:ring-2 focus:ring-blue-500 focus:bg-white dark:focus:bg-gray-600
+                             transition-all duration-200"
                     placeholder="haʊ ɑr ju"
                   />
                 </div>
@@ -192,15 +198,16 @@ export function AddPhraseModal({ isOpen, onClose }: AddPhraseModalProps) {
                       value={formData.tagInput}
                       onChange={(e) => setFormData({ ...formData, tagInput: e.target.value })}
                       onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), handleAddTag())}
-                      className="flex-1 px-4 py-2 border border-gray-300 rounded-lg 
-                               focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                      className="flex-1 px-4 py-2 bg-gray-50 dark:bg-gray-700 border-0 rounded-xl 
+                               focus:ring-2 focus:ring-blue-500 focus:bg-white dark:focus:bg-gray-600
+                               transition-all duration-200"
                       placeholder="タグを入力"
                     />
                     <button
                       type="button"
                       onClick={handleAddTag}
-                      className="px-4 py-2 bg-gray-200 hover:bg-gray-300 rounded-lg 
-                               transition-colors"
+                      className="px-4 py-2 bg-gradient-to-r from-blue-500 to-blue-600 text-white 
+                               rounded-xl hover:shadow-lg transition-all duration-200 hover:scale-105"
                     >
                       <FiPlus className="w-5 h-5" />
                     </button>
@@ -213,7 +220,10 @@ export function AddPhraseModal({ isOpen, onClose }: AddPhraseModalProps) {
                         <span
                           key={tag}
                           className="inline-flex items-center gap-1 px-3 py-1 
-                                   bg-primary-100 text-primary-700 rounded-full text-sm"
+                                   bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-900/20 
+                                   dark:to-purple-900/20 text-blue-700 dark:text-blue-300 
+                                   rounded-full text-sm font-medium border border-blue-200 
+                                   dark:border-blue-700"
                         >
                           {tag}
                           <button
@@ -230,12 +240,13 @@ export function AddPhraseModal({ isOpen, onClose }: AddPhraseModalProps) {
                 </div>
 
                 {/* ボタン */}
-                <div className="flex gap-3 pt-4 border-t mt-6">
+                <div className="flex gap-3 pt-6 border-t border-gray-200 dark:border-gray-700 mt-6">
                   <button
                     type="button"
                     onClick={onClose}
-                    className="flex-1 px-4 py-2 border border-gray-300 rounded-lg font-medium
-                             bg-white hover:bg-gray-50 transition-colors"
+                    className="flex-1 px-5 py-3 border border-gray-300 dark:border-gray-600 rounded-xl 
+                             font-medium bg-white dark:bg-gray-700 hover:bg-gray-50 
+                             dark:hover:bg-gray-600 transition-all duration-200"
                     disabled={isSubmitting}
                   >
                     キャンセル
@@ -243,12 +254,13 @@ export function AddPhraseModal({ isOpen, onClose }: AddPhraseModalProps) {
                   <button
                     type="submit"
                     disabled={isSubmitting || showSuccess}
-                    className={`flex-1 px-4 py-2 rounded-lg transition-all duration-200 font-medium shadow-md
+                    className={`flex-1 px-5 py-3 rounded-xl transition-all duration-200 font-medium 
+                             shadow-lg hover:shadow-xl transform hover:scale-[1.02]
                              ${showSuccess 
-                               ? 'bg-green-600 text-white' 
+                               ? 'bg-gradient-to-r from-green-500 to-green-600 text-white' 
                                : isSubmitting
                                ? 'bg-gray-400 text-white cursor-not-allowed'
-                               : 'bg-blue-600 text-white hover:bg-blue-700 active:bg-blue-800'}`}
+                               : 'bg-gradient-to-r from-blue-600 to-purple-600 text-white'}`}
                   >
                     {showSuccess ? (
                       <span className="flex items-center justify-center gap-2">
