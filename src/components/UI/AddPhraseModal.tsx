@@ -234,8 +234,8 @@ export function AddPhraseModal({ isOpen, onClose }: AddPhraseModalProps) {
                   <button
                     type="button"
                     onClick={onClose}
-                    className="flex-1 px-4 py-2 border border-gray-300 rounded-lg 
-                             hover:bg-gray-50 transition-colors"
+                    className="flex-1 px-4 py-2 border border-gray-300 rounded-lg font-medium
+                             bg-white hover:bg-gray-50 transition-colors"
                     disabled={isSubmitting}
                   >
                     キャンセル
@@ -243,12 +243,12 @@ export function AddPhraseModal({ isOpen, onClose }: AddPhraseModalProps) {
                   <button
                     type="submit"
                     disabled={isSubmitting || showSuccess}
-                    className={`flex-1 px-4 py-2 rounded-lg transition-all duration-200 font-medium
+                    className={`flex-1 px-4 py-2 rounded-lg transition-all duration-200 font-medium shadow-md
                              ${showSuccess 
                                ? 'bg-green-600 text-white' 
                                : isSubmitting
                                ? 'bg-gray-400 text-white cursor-not-allowed'
-                               : 'bg-primary-600 text-white hover:bg-primary-700 shadow-sm'}`}
+                               : 'bg-blue-600 text-white hover:bg-blue-700 active:bg-blue-800'}`}
                   >
                     {showSuccess ? (
                       <span className="flex items-center justify-center gap-2">
