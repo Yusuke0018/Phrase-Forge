@@ -35,14 +35,23 @@ export function ReviewCard({ phrase, onSwipeLeft, onSwipeRight }: ReviewCardProp
   const [isFlipping, setIsFlipping] = useState(false);
   const [selectedDifficulty, setSelectedDifficulty] = useState<number | null>(null);
   const [swipeDirection, setSwipeDirection] = useState<'left' | 'right' | null>(null);
+  const [showConfirmDialog, setShowConfirmDialog] = useState(false);
+  const [pendingInterval, setPendingInterval] = useState<ReviewInterval | null>(null);
   const { removeReviewedPhrase } = usePhraseStore();
 
-  const handleIntervalSelect = async (interval: ReviewInterval) => {
+  const handleIntervalSelect = (interval: ReviewInterval) => {
+    setPendingInterval(interval);
+    setShowConfirmDialog(true);
+  };
+
+  const confirmReview = async () => {
+    if (!pendingInterval) return;
+    
     try {
       // デフォルトの難易度は0.5（中程度）
       const difficulty = selectedDifficulty ?? 0.5;
-      const nextReviewDate = calculateNextReviewDate(interval);
-      await updatePhraseReviewDate(phrase.id, nextReviewDate, interval, difficulty);
+      const nextReviewDate = calculateNextReviewDate(pendingInterval);
+      await updatePhraseReviewDate(phrase.id, nextReviewDate, pendingInterval, difficulty);
       
       // レビュー済みのフレーズを状態から削除
       removeReviewedPhrase(phrase.id);
@@ -50,9 +59,16 @@ export function ReviewCard({ phrase, onSwipeLeft, onSwipeRight }: ReviewCardProp
       // 翻訳を隠す
       setShowTranslation(false);
       setSelectedDifficulty(null);
+      setShowConfirmDialog(false);
+      setPendingInterval(null);
     } catch (error) {
       console.error('Failed to update review date:', error);
     }
+  };
+
+  const cancelReview = () => {
+    setShowConfirmDialog(false);
+    setPendingInterval(null);
   };
 
   const swipeHandlers = useSwipe({
@@ -252,6 +268,72 @@ export function ReviewCard({ phrase, onSwipeLeft, onSwipeRight }: ReviewCardProp
           </>
         )}
       </motion.p>
+
+      {/* 確認ダイアログ */}
+      <AnimatePresence>
+        {showConfirmDialog && pendingInterval && (
+          <>
+            {/* オーバーレイ */}
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="fixed inset-0 bg-black/50 z-50"
+              onClick={cancelReview}
+            />
+
+            {/* ダイアログ */}
+            <motion.div
+              initial={{ opacity: 0, scale: 0.9, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.9, y: 20 }}
+              className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 
+                       w-[90%] max-w-md bg-white dark:bg-gray-800 rounded-2xl 
+                       shadow-2xl z-50 p-6"
+            >
+              <h3 className="text-xl font-bold text-gray-800 dark:text-gray-100 mb-4 text-center">
+                復習を完了しますか？
+              </h3>
+              
+              <div className="bg-gray-50 dark:bg-gray-700/50 rounded-xl p-4 mb-6">
+                <div className="flex items-center justify-between mb-2">
+                  <span className="text-sm text-gray-600 dark:text-gray-400">フレーズ:</span>
+                  <span className="text-sm font-medium text-gray-800 dark:text-gray-200">
+                    {phrase.english}
+                  </span>
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className="text-sm text-gray-600 dark:text-gray-400">次回復習:</span>
+                  <span className="text-sm font-medium bg-gradient-to-r from-blue-600 to-purple-600 
+                               bg-clip-text text-transparent">
+                    {REVIEW_INTERVALS[pendingInterval].label}
+                  </span>
+                </div>
+              </div>
+
+              <div className="flex gap-3">
+                <button
+                  onClick={cancelReview}
+                  className="flex-1 px-4 py-3 border border-gray-300 dark:border-gray-600 
+                           rounded-xl font-medium bg-white dark:bg-gray-700 
+                           hover:bg-gray-50 dark:hover:bg-gray-600 
+                           transition-all duration-200"
+                >
+                  キャンセル
+                </button>
+                <button
+                  onClick={confirmReview}
+                  className="flex-1 px-4 py-3 rounded-xl font-medium 
+                           bg-gradient-to-r from-blue-600 to-purple-600 text-white
+                           hover:shadow-lg transition-all duration-200 hover:scale-[1.02]"
+                >
+                  完了する
+                </button>
+              </div>
+            </motion.div>
+          </>
+        )}
+      </AnimatePresence>
     </div>
   );
 }
