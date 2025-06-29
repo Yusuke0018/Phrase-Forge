@@ -32,15 +32,27 @@ export function ExportDialog({ isOpen, onClose, selectedPhrases = [] }: ExportDi
   });
   const [isExporting, setIsExporting] = useState(false);
   const [exportSuccess, setExportSuccess] = useState(false);
+  const [selectMode, setSelectMode] = useState<'all' | 'custom'>(
+    selectedPhrases.length > 0 ? 'custom' : 'all'
+  );
+  const [selectedPhraseIds, setSelectedPhraseIds] = useState<Set<string>>(
+    new Set(selectedPhrases)
+  );
 
   const handleExport = async () => {
     try {
       setIsExporting(true);
-      await exportPhrases(options, phrases);
+      const exportOptions = {
+        ...options,
+        phrases: selectMode === 'all' ? [] : Array.from(selectedPhraseIds)
+      };
+      await exportPhrases(exportOptions, phrases);
       setExportSuccess(true);
       setTimeout(() => {
         onClose();
         setExportSuccess(false);
+        setSelectMode('all');
+        setSelectedPhraseIds(new Set());
       }, 1500);
     } catch (error) {
       console.error('Export failed:', error);
@@ -50,9 +62,19 @@ export function ExportDialog({ isOpen, onClose, selectedPhrases = [] }: ExportDi
     }
   };
 
-  const exportCount = options.phrases.length > 0 
-    ? options.phrases.length 
-    : phrases.length;
+  const exportCount = selectMode === 'all' 
+    ? phrases.length 
+    : selectedPhraseIds.size;
+
+  const togglePhraseSelection = (phraseId: string) => {
+    const newSelected = new Set(selectedPhraseIds);
+    if (newSelected.has(phraseId)) {
+      newSelected.delete(phraseId);
+    } else {
+      newSelected.add(phraseId);
+    }
+    setSelectedPhraseIds(newSelected);
+  };
 
   return (
     <AnimatePresence>
@@ -63,7 +85,7 @@ export function ExportDialog({ isOpen, onClose, selectedPhrases = [] }: ExportDi
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 bg-black bg-opacity-50 z-50"
+            className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50"
             onClick={onClose}
           />
 
@@ -73,19 +95,20 @@ export function ExportDialog({ isOpen, onClose, selectedPhrases = [] }: ExportDi
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.9, y: 20 }}
             className="fixed inset-x-4 top-20 md:inset-x-auto md:left-1/2 md:-translate-x-1/2 
-                       max-w-md w-full bg-white rounded-lg shadow-xl z-50"
+                       max-w-md w-full bg-white dark:bg-gray-800 rounded-2xl shadow-2xl z-50
+                       border border-gray-100 dark:border-gray-700"
           >
             <div className="p-6">
               {/* ヘッダー */}
               <div className="flex items-center justify-between mb-6">
-                <h2 className="text-xl font-bold text-gray-800">
+                <h2 className="text-xl font-bold text-gray-800 dark:text-gray-100">
                   フレーズをエクスポート
                 </h2>
                 <button
                   onClick={onClose}
-                  className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+                  className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
                 >
-                  <FiX className="w-6 h-6 text-gray-600" />
+                  <FiX className="w-6 h-6 text-gray-600 dark:text-gray-400" />
                 </button>
               </div>
 
@@ -109,12 +132,56 @@ export function ExportDialog({ isOpen, onClose, selectedPhrases = [] }: ExportDi
                 <div className="space-y-6">
                   {/* エクスポート対象 */}
                   <div>
-                    <p className="text-sm font-medium text-gray-700 mb-2">
+                    <p className="text-sm font-medium text-gray-700 mb-3">
                       エクスポート対象
                     </p>
-                    <p className="text-lg font-semibold text-primary-600">
-                      {exportCount} 個のフレーズ
-                    </p>
+                    <div className="space-y-2">
+                      <label className="flex items-center gap-3 cursor-pointer">
+                        <input
+                          type="radio"
+                          name="selectMode"
+                          checked={selectMode === 'all'}
+                          onChange={() => setSelectMode('all')}
+                          className="w-4 h-4 text-primary-600"
+                        />
+                        <span className="text-sm text-gray-700 dark:text-gray-300">
+                          すべてのフレーズ ({phrases.length}個)
+                        </span>
+                      </label>
+                      <label className="flex items-center gap-3 cursor-pointer">
+                        <input
+                          type="radio"
+                          name="selectMode"
+                          checked={selectMode === 'custom'}
+                          onChange={() => setSelectMode('custom')}
+                          className="w-4 h-4 text-primary-600"
+                        />
+                        <span className="text-sm text-gray-700 dark:text-gray-300">
+                          フレーズを選択 ({selectedPhraseIds.size}個選択中)
+                        </span>
+                      </label>
+                    </div>
+                    
+                    {selectMode === 'custom' && (
+                      <div className="mt-3 max-h-40 overflow-y-auto border border-gray-200 dark:border-gray-600 rounded-lg">
+                        {phrases.map(phrase => (
+                          <label
+                            key={phrase.id}
+                            className="flex items-center gap-3 p-2 hover:bg-gray-50 dark:hover:bg-gray-700 cursor-pointer"
+                          >
+                            <input
+                              type="checkbox"
+                              checked={selectedPhraseIds.has(phrase.id)}
+                              onChange={() => togglePhraseSelection(phrase.id)}
+                              className="w-4 h-4 text-primary-600 rounded"
+                            />
+                            <span className="text-sm text-gray-700 dark:text-gray-300 flex-1">
+                              {phrase.english} - {phrase.japanese}
+                            </span>
+                          </label>
+                        ))}
+                      </div>
+                    )}
                   </div>
 
                   {/* フォーマット選択 */}

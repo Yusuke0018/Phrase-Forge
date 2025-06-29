@@ -191,9 +191,9 @@ export default function SettingsPage() {
       </section>
 
       {/* データ管理 */}
-      <section className="bg-white rounded-lg shadow-md mb-6">
-        <div className="p-6 border-b border-gray-200">
-          <h2 className="text-xl font-bold text-gray-800">データ管理</h2>
+      <section className="bg-white dark:bg-gray-800 rounded-lg shadow-md mb-6">
+        <div className="p-6 border-b border-gray-200 dark:border-gray-700">
+          <h2 className="text-xl font-bold text-gray-800 dark:text-gray-100">データ管理</h2>
         </div>
         
         <div className="p-6 space-y-3">
@@ -227,15 +227,15 @@ export default function SettingsPage() {
       </section>
 
       {/* アプリ情報 */}
-      <section className="bg-white rounded-lg shadow-md">
-        <div className="p-6 border-b border-gray-200">
-          <h2 className="text-xl font-bold text-gray-800 flex items-center gap-2">
+      <section className="bg-white dark:bg-gray-800 rounded-lg shadow-md">
+        <div className="p-6 border-b border-gray-200 dark:border-gray-700">
+          <h2 className="text-xl font-bold text-gray-800 dark:text-gray-100 flex items-center gap-2">
             <FiInfo className="w-5 h-5 text-primary-600" />
             アプリ情報
           </h2>
         </div>
         
-        <div className="p-6 space-y-2 text-sm text-gray-600">
+        <div className="p-6 space-y-2 text-sm text-gray-600 dark:text-gray-400">
           <p>バージョン: 1.0.0</p>
           <p>© 2024 Phrase Forge</p>
         </div>

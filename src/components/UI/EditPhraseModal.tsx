@@ -23,16 +23,28 @@ interface EditPhraseModalProps {
 }
 
 export function EditPhraseModal({ isOpen, onClose, phrase }: EditPhraseModalProps) {
-  const { categories, updatePhrase, deletePhrase } = usePhraseStore();
+  const { tags, updatePhrase, deletePhrase } = usePhraseStore();
   const [formData, setFormData] = useState({
     english: '',
     japanese: '',
     pronunciation: '',
-    categoryId: 'daily',
     tagInput: '',
     selectedTags: [] as string[],
   });
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [showTagSuggestions, setShowTagSuggestions] = useState(false);
+  
+  // 既存のタグから重複しないタグ名を取得
+  const existingTagNames = Array.from(
+    new Set(tags.map(tag => tag.name))
+  ).filter(name => !formData.selectedTags.includes(name));
+  
+  // 入力に基づいてフィルタリングされたタグ
+  const filteredTags = formData.tagInput
+    ? existingTagNames.filter(tag => 
+        tag.toLowerCase().includes(formData.tagInput.toLowerCase())
+      )
+    : existingTagNames;
 
   useEffect(() => {
     if (phrase) {
@@ -40,7 +52,6 @@ export function EditPhraseModal({ isOpen, onClose, phrase }: EditPhraseModalProp
         english: phrase.english,
         japanese: phrase.japanese,
         pronunciation: phrase.pronunciation || '',
-        categoryId: phrase.categoryId,
         tagInput: '',
         selectedTags: [...phrase.tags],
       });
@@ -59,7 +70,6 @@ export function EditPhraseModal({ isOpen, onClose, phrase }: EditPhraseModalProp
         english: formData.english.trim(),
         japanese: formData.japanese.trim(),
         pronunciation: formData.pronunciation.trim(),
-        categoryId: formData.categoryId,
         tags: formData.selectedTags,
       });
       
@@ -148,8 +158,9 @@ export function EditPhraseModal({ isOpen, onClose, phrase }: EditPhraseModalProp
                       type="text"
                       value={formData.english}
                       onChange={(e) => setFormData({ ...formData, english: e.target.value })}
-                      className="w-full px-4 py-2 border border-gray-300 rounded-lg 
-                               focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                      className="w-full px-4 py-3 bg-gray-50 dark:bg-gray-700 border-0 rounded-xl 
+                               focus:ring-2 focus:ring-blue-500 focus:bg-white dark:focus:bg-gray-600
+                               transition-all duration-200 text-lg"
                       required
                     />
                   </div>
@@ -163,8 +174,9 @@ export function EditPhraseModal({ isOpen, onClose, phrase }: EditPhraseModalProp
                       type="text"
                       value={formData.japanese}
                       onChange={(e) => setFormData({ ...formData, japanese: e.target.value })}
-                      className="w-full px-4 py-2 border border-gray-300 rounded-lg 
-                               focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                      className="w-full px-4 py-3 bg-gray-50 dark:bg-gray-700 border-0 rounded-xl 
+                               focus:ring-2 focus:ring-blue-500 focus:bg-white dark:focus:bg-gray-600
+                               transition-all duration-200 text-lg"
                       required
                     />
                   </div>
@@ -178,28 +190,10 @@ export function EditPhraseModal({ isOpen, onClose, phrase }: EditPhraseModalProp
                       type="text"
                       value={formData.pronunciation}
                       onChange={(e) => setFormData({ ...formData, pronunciation: e.target.value })}
-                      className="w-full px-4 py-2 border border-gray-300 rounded-lg 
-                               focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                      className="w-full px-4 py-3 bg-gray-50 dark:bg-gray-700 border-0 rounded-xl 
+                               focus:ring-2 focus:ring-blue-500 focus:bg-white dark:focus:bg-gray-600
+                               transition-all duration-200"
                     />
-                  </div>
-
-                  {/* カテゴリ */}
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      カテゴリ
-                    </label>
-                    <select
-                      value={formData.categoryId}
-                      onChange={(e) => setFormData({ ...formData, categoryId: e.target.value })}
-                      className="w-full px-4 py-2 border border-gray-300 rounded-lg 
-                               focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
-                    >
-                      {categories.map((category) => (
-                        <option key={category.id} value={category.id}>
-                          {category.icon} {category.name}
-                        </option>
-                      ))}
-                    </select>
                   </div>
 
                   {/* タグ */}
@@ -234,7 +228,10 @@ export function EditPhraseModal({ isOpen, onClose, phrase }: EditPhraseModalProp
                           <span
                             key={tag}
                             className="inline-flex items-center gap-1 px-3 py-1 
-                                     bg-primary-100 text-primary-700 rounded-full text-sm"
+                                     bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-900/20 
+                                     dark:to-purple-900/20 text-blue-700 dark:text-blue-300 
+                                     rounded-full text-sm font-medium border border-blue-200 
+                                     dark:border-blue-700"
                           >
                             {tag}
                             <button
