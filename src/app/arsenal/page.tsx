@@ -88,33 +88,9 @@ export default function ArsenalPage() {
   return (
     <div className="max-w-4xl mx-auto px-4 py-6 pt-20">
       {/* ヘッダー */}
-      <div className="mb-6 flex justify-between items-start">
-        <div>
-          <h1 className="text-3xl font-bold text-gray-800 dark:text-gray-100 mb-2">武器庫</h1>
-          <p className="text-gray-600 dark:text-gray-400">すべてのフレーズを管理</p>
-        </div>
-        <button
-          onClick={() => setIsAddModalOpen(true)}
-          className="w-12 h-12 bg-gray-900 text-white rounded-full 
-                   hover:bg-gray-800 transition-all duration-200 flex items-center justify-center
-                   shadow-lg hover:shadow-xl hover:scale-110"
-          aria-label="フレーズを追加"
-        >
-          <svg 
-            className="w-6 h-6" 
-            fill="none" 
-            stroke="currentColor" 
-            viewBox="0 0 24 24" 
-            xmlns="http://www.w3.org/2000/svg"
-          >
-            <path 
-              strokeLinecap="round" 
-              strokeLinejoin="round" 
-              strokeWidth={2.5} 
-              d="M12 4v16m8-8H4" 
-            />
-          </svg>
-        </button>
+      <div className="mb-6">
+        <h1 className="text-3xl font-bold text-gray-800 dark:text-gray-100 mb-2">武器庫</h1>
+        <p className="text-gray-600 dark:text-gray-400">すべてのフレーズを管理</p>
       </div>
 
       {/* 検索バーとアクション */}
