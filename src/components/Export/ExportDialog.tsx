@@ -9,7 +9,7 @@
  * - types/export.types.ts: エクスポート関連の型定義
  */
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { FiX, FiDownload, FiCheck } from 'react-icons/fi';
 import { usePhraseStore } from '@/stores/phrase.store';
@@ -23,7 +23,7 @@ interface ExportDialogProps {
 }
 
 export function ExportDialog({ isOpen, onClose, selectedPhrases = [] }: ExportDialogProps) {
-  const { phrases } = usePhraseStore();
+  const { phrases, loadPhrases } = usePhraseStore();
   const [options, setOptions] = useState<ExportOptions>({
     format: 'csv',
     phrases: selectedPhrases,
@@ -38,6 +38,36 @@ export function ExportDialog({ isOpen, onClose, selectedPhrases = [] }: ExportDi
   const [selectedPhraseIds, setSelectedPhraseIds] = useState<Set<string>>(
     new Set(selectedPhrases)
   );
+  const [isLoadingPhrases, setIsLoadingPhrases] = useState(false);
+
+  // Load phrases when dialog opens if not already loaded
+  useEffect(() => {
+    const loadPhrasesIfNeeded = async () => {
+      if (isOpen && phrases.length === 0) {
+        console.log('[ExportDialog] Loading phrases...');
+        setIsLoadingPhrases(true);
+        try {
+          await loadPhrases();
+          console.log('[ExportDialog] Phrases loaded successfully');
+        } catch (error) {
+          console.error('[ExportDialog] Failed to load phrases:', error);
+        } finally {
+          setIsLoadingPhrases(false);
+        }
+      }
+    };
+    
+    loadPhrasesIfNeeded();
+  }, [isOpen, phrases.length, loadPhrases]);
+
+  // Debug logging
+  useEffect(() => {
+    if (isOpen) {
+      console.log('[ExportDialog] Dialog opened. Phrases count:', phrases.length);
+      console.log('[ExportDialog] Selected mode:', selectMode);
+      console.log('[ExportDialog] Selected phrase IDs:', selectedPhraseIds.size);
+    }
+  }, [isOpen, phrases.length, selectMode, selectedPhraseIds.size]);
 
   const handleExport = async () => {
     try {
@@ -65,6 +95,14 @@ export function ExportDialog({ isOpen, onClose, selectedPhrases = [] }: ExportDi
   const exportCount = selectMode === 'all' 
     ? phrases.length 
     : selectedPhraseIds.size;
+  
+  // Debug log for export count
+  console.log('[ExportDialog] Export count calculation:', {
+    selectMode,
+    phrasesLength: phrases.length,
+    selectedPhraseIdsSize: selectedPhraseIds.size,
+    exportCount
+  });
 
   const togglePhraseSelection = (phraseId: string) => {
     const newSelected = new Set(selectedPhraseIds);
@@ -112,7 +150,15 @@ export function ExportDialog({ isOpen, onClose, selectedPhrases = [] }: ExportDi
                 </button>
               </div>
 
-              {exportSuccess ? (
+              {isLoadingPhrases ? (
+                /* ローディング状態 */
+                <div className="text-center py-8">
+                  <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+                  <p className="text-sm text-gray-600 dark:text-gray-400">
+                    フレーズを読み込み中...
+                  </p>
+                </div>
+              ) : exportSuccess ? (
                 /* 成功メッセージ */
                 <motion.div
                   initial={{ scale: 0.8, opacity: 0 }}

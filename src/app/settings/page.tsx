@@ -19,16 +19,23 @@ import {
   FiInfo, FiRefreshCw
 } from 'react-icons/fi';
 import { useSettingsStore } from '@/stores/settings.store';
+import { usePhraseStore } from '@/stores/phrase.store';
 import { ExportDialog } from '@/components/Export/ExportDialog';
 import { ImportDialog } from '@/components/Import/ImportDialog';
 import { notificationService } from '@/services/notification.service';
 
 export default function SettingsPage() {
   const settings = useSettingsStore();
+  const { loadPhrases } = usePhraseStore();
   const [showExportDialog, setShowExportDialog] = useState(false);
   const [showImportDialog, setShowImportDialog] = useState(false);
   const [showResetConfirm, setShowResetConfirm] = useState(false);
   const [notificationPermission, setNotificationPermission] = useState<NotificationPermission>('default');
+
+  useEffect(() => {
+    // Load phrases when the page mounts to ensure they're available for export
+    loadPhrases();
+  }, [loadPhrases]);
 
   useEffect(() => {
     // 通知権限の状態を確認
