@@ -207,27 +207,62 @@ export function EditPhraseModal({ isOpen, onClose, phrase }: EditPhraseModalProp
 
                   {/* タグ */}
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                       タグ
                     </label>
-                    <div className="flex gap-2">
-                      <input
-                        type="text"
-                        value={formData.tagInput}
-                        onChange={(e) => setFormData({ ...formData, tagInput: e.target.value })}
-                        onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), handleAddTag())}
-                        className="flex-1 px-4 py-2 border border-gray-300 rounded-lg 
-                                 focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
-                        placeholder="タグを入力"
-                      />
-                      <button
-                        type="button"
-                        onClick={handleAddTag}
-                        className="px-4 py-2 bg-gray-200 hover:bg-gray-300 rounded-lg 
-                                 transition-colors"
-                      >
-                        <FiPlus className="w-5 h-5" />
-                      </button>
+                    <div className="relative">
+                      <div className="flex gap-2">
+                        <input
+                          type="text"
+                          value={formData.tagInput}
+                          onChange={(e) => {
+                            setFormData({ ...formData, tagInput: e.target.value });
+                            setShowTagSuggestions(true);
+                          }}
+                          onFocus={() => setShowTagSuggestions(true)}
+                          onBlur={() => setTimeout(() => setShowTagSuggestions(false), 200)}
+                          onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), handleAddTag())}
+                          className="flex-1 px-4 py-2 bg-gray-50 dark:bg-gray-700 border-0 rounded-xl 
+                                   focus:ring-2 focus:ring-blue-500 focus:bg-white dark:focus:bg-gray-600
+                                   transition-all duration-200"
+                          placeholder="タグを入力または選択"
+                        />
+                        <button
+                          type="button"
+                          onClick={handleAddTag}
+                          className="px-4 py-2 bg-gradient-to-r from-blue-500 to-blue-600 text-white 
+                                   rounded-xl hover:shadow-lg transition-all duration-200 hover:scale-105"
+                        >
+                          <FiPlus className="w-5 h-5" />
+                        </button>
+                      </div>
+                      
+                      {/* タグのサジェスト */}
+                      {showTagSuggestions && filteredTags.length > 0 && (
+                        <div className="absolute z-10 w-full mt-2 bg-white dark:bg-gray-800 
+                                      rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 
+                                      max-h-40 overflow-y-auto">
+                          {filteredTags.map((tag) => (
+                            <button
+                              key={tag}
+                              type="button"
+                              onClick={() => {
+                                setFormData({
+                                  ...formData,
+                                  selectedTags: [...formData.selectedTags, tag],
+                                  tagInput: ''
+                                });
+                                setShowTagSuggestions(false);
+                              }}
+                              className="w-full px-4 py-2 text-left text-sm hover:bg-gray-50 
+                                       dark:hover:bg-gray-700 transition-colors
+                                       text-gray-700 dark:text-gray-300"
+                            >
+                              {tag}
+                            </button>
+                          ))}
+                        </div>
+                      )}
                     </div>
                     
                     {/* 選択されたタグ */}

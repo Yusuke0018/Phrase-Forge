@@ -42,6 +42,11 @@ export default function ArsenalPage() {
   const [selectedPhrase, setSelectedPhrase] = useState<Phrase | null>(null);
   const [displayedPhrases, setDisplayedPhrases] = useState<Phrase[]>([]);
   const [showFilters, setShowFilters] = useState(false);
+  
+  // 全てのフレーズから既存のタグを収集
+  const allTags = Array.from(new Set(
+    phrases.flatMap(phrase => phrase.tags)
+  )).sort();
 
   useEffect(() => {
     const init = async () => {
@@ -196,9 +201,9 @@ export default function ArsenalPage() {
                            focus:ring-2 focus:ring-blue-500 cursor-pointer"
                 >
                   <option value="all">すべて</option>
-                  {tags.map((tag) => (
-                    <option key={tag.id} value={tag.name}>
-                      {tag.name}
+                  {allTags.map((tag) => (
+                    <option key={tag} value={tag}>
+                      {tag}
                     </option>
                   ))}
                 </select>
@@ -242,7 +247,7 @@ export default function ArsenalPage() {
                      hover:shadow-lg transition-shadow duration-300"
           >
             <p className="text-3xl font-bold bg-gradient-to-r from-pink-600 to-pink-700 
-                        bg-clip-text text-transparent">{tags.length}</p>
+                        bg-clip-text text-transparent">{allTags.length}</p>
             <p className="text-sm font-medium text-gray-700 dark:text-gray-300 mt-1">タグ数</p>
           </motion.div>
         </div>
