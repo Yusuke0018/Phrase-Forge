@@ -26,12 +26,15 @@ import { FiEye, FiEyeOff } from 'react-icons/fi';
 
 interface ReviewCardProps {
   phrase: Phrase;
+  onSwipeLeft?: () => void;
+  onSwipeRight?: () => void;
 }
 
-export function ReviewCard({ phrase }: ReviewCardProps) {
+export function ReviewCard({ phrase, onSwipeLeft, onSwipeRight }: ReviewCardProps) {
   const [showTranslation, setShowTranslation] = useState(false);
   const [isFlipping, setIsFlipping] = useState(false);
   const [selectedDifficulty, setSelectedDifficulty] = useState<number | null>(null);
+  const [swipeDirection, setSwipeDirection] = useState<'left' | 'right' | null>(null);
   const { removeReviewedPhrase } = usePhraseStore();
 
   const handleIntervalSelect = async (interval: ReviewInterval) => {
@@ -55,6 +58,24 @@ export function ReviewCard({ phrase }: ReviewCardProps) {
   const swipeHandlers = useSwipe({
     onSwipeUp: () => setShowTranslation(true),
     onSwipeDown: () => setShowTranslation(false),
+    onSwipeLeft: () => {
+      if (onSwipeLeft && !showTranslation) {
+        setSwipeDirection('left');
+        setTimeout(() => {
+          onSwipeLeft();
+          setSwipeDirection(null);
+        }, 300);
+      }
+    },
+    onSwipeRight: () => {
+      if (onSwipeRight && !showTranslation) {
+        setSwipeDirection('right');
+        setTimeout(() => {
+          onSwipeRight();
+          setSwipeDirection(null);
+        }, 300);
+      }
+    },
   });
 
   return (
@@ -63,6 +84,12 @@ export function ReviewCard({ phrase }: ReviewCardProps) {
         className="bg-white/95 dark:bg-gray-800/95 backdrop-blur-lg rounded-2xl shadow-2xl 
                  p-8 cursor-pointer select-none border border-gray-100 dark:border-gray-700
                  hover:shadow-3xl transition-shadow duration-300"
+        animate={{
+          x: swipeDirection === 'left' ? -300 : swipeDirection === 'right' ? 300 : 0,
+          opacity: swipeDirection ? 0 : 1,
+          rotate: swipeDirection === 'left' ? -15 : swipeDirection === 'right' ? 15 : 0,
+        }}
+        transition={{ duration: 0.3 }}
         whileTap={{ scale: 0.98 }}
         {...swipeHandlers}
         onClick={() => {
@@ -218,6 +245,12 @@ export function ReviewCard({ phrase }: ReviewCardProps) {
         className="mt-4 text-center text-sm text-gray-500 dark:text-gray-400"
       >
         タップまたは上スワイプで日本語訳を表示
+        {(onSwipeLeft || onSwipeRight) && (
+          <>
+            <br />
+            左右スワイプで次のカードへ
+          </>
+        )}
       </motion.p>
     </div>
   );

@@ -23,7 +23,7 @@ interface EditPhraseModalProps {
 }
 
 export function EditPhraseModal({ isOpen, onClose, phrase }: EditPhraseModalProps) {
-  const { tags, updatePhrase, deletePhrase } = usePhraseStore();
+  const { phrases, tags, updatePhrase, deletePhrase } = usePhraseStore();
   const [formData, setFormData] = useState({
     english: '',
     japanese: '',
@@ -34,10 +34,19 @@ export function EditPhraseModal({ isOpen, onClose, phrase }: EditPhraseModalProp
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [showTagSuggestions, setShowTagSuggestions] = useState(false);
   
+  // 全てのフレーズから既存のタグを収集
+  const allExistingTags = new Set<string>();
+  phrases.forEach(phrase => {
+    phrase.tags.forEach(tag => allExistingTags.add(tag));
+  });
+  
+  // タグストアからのタグも追加
+  tags.forEach(tag => allExistingTags.add(tag.name));
+  
   // 既存のタグから重複しないタグ名を取得
-  const existingTagNames = Array.from(
-    new Set(tags.map(tag => tag.name))
-  ).filter(name => !formData.selectedTags.includes(name));
+  const existingTagNames = Array.from(allExistingTags)
+    .filter(name => !formData.selectedTags.includes(name))
+    .sort();
   
   // 入力に基づいてフィルタリングされたタグ
   const filteredTags = formData.tagInput
@@ -151,7 +160,7 @@ export function EditPhraseModal({ isOpen, onClose, phrase }: EditPhraseModalProp
                 <form onSubmit={handleSubmit} className="space-y-4">
                   {/* 英語フレーズ */}
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                       英語フレーズ <span className="text-red-500">*</span>
                     </label>
                     <input
@@ -167,7 +176,7 @@ export function EditPhraseModal({ isOpen, onClose, phrase }: EditPhraseModalProp
 
                   {/* 日本語訳 */}
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                       日本語訳 <span className="text-red-500">*</span>
                     </label>
                     <input
@@ -183,7 +192,7 @@ export function EditPhraseModal({ isOpen, onClose, phrase }: EditPhraseModalProp
 
                   {/* 発音記号 */}
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                       発音記号（任意）
                     </label>
                     <input
@@ -248,12 +257,13 @@ export function EditPhraseModal({ isOpen, onClose, phrase }: EditPhraseModalProp
                   </div>
 
                   {/* ボタン */}
-                  <div className="flex gap-3 pt-4">
+                  <div className="flex gap-3 pt-6 border-t border-gray-200 dark:border-gray-700 mt-6">
                     <button
                       type="button"
                       onClick={() => setShowDeleteConfirm(true)}
-                      className="px-4 py-2 border border-red-300 text-red-600 rounded-lg 
-                               hover:bg-red-50 transition-colors flex items-center gap-2"
+                      className="px-4 py-3 border border-red-300 dark:border-red-600 text-red-600 
+                               dark:text-red-400 rounded-xl hover:bg-red-50 dark:hover:bg-red-900/20 
+                               transition-all duration-200 flex items-center gap-2 font-medium"
                     >
                       <FiTrash2 className="w-4 h-4" />
                       削除
@@ -262,15 +272,17 @@ export function EditPhraseModal({ isOpen, onClose, phrase }: EditPhraseModalProp
                     <button
                       type="button"
                       onClick={onClose}
-                      className="px-4 py-2 border border-gray-300 rounded-lg 
-                               hover:bg-gray-50 transition-colors"
+                      className="px-5 py-3 border border-gray-300 dark:border-gray-600 rounded-xl 
+                               font-medium bg-white dark:bg-gray-700 hover:bg-gray-50 
+                               dark:hover:bg-gray-600 transition-all duration-200"
                     >
                       キャンセル
                     </button>
                     <button
                       type="submit"
-                      className="px-4 py-2 bg-primary-600 text-white rounded-lg 
-                               hover:bg-primary-700 transition-colors"
+                      className="px-5 py-3 rounded-xl transition-all duration-200 font-medium 
+                               shadow-lg hover:shadow-xl transform hover:scale-[1.02]
+                               bg-gradient-to-r from-blue-600 to-purple-600 text-white"
                     >
                       保存する
                     </button>
@@ -279,25 +291,27 @@ export function EditPhraseModal({ isOpen, onClose, phrase }: EditPhraseModalProp
               ) : (
                 /* 削除確認 */
                 <div className="text-center py-4">
-                  <h3 className="text-lg font-semibold text-gray-800 mb-2">
+                  <h3 className="text-lg font-semibold text-gray-800 dark:text-gray-100 mb-2">
                     本当に削除しますか？
                   </h3>
-                  <p className="text-gray-600 mb-6">
+                  <p className="text-gray-600 dark:text-gray-400 mb-6">
                     「{phrase.english}」を削除します。<br />
                     この操作は取り消せません。
                   </p>
                   <div className="flex gap-3 justify-center">
                     <button
                       onClick={() => setShowDeleteConfirm(false)}
-                      className="px-6 py-2 border border-gray-300 rounded-lg 
-                               hover:bg-gray-50 transition-colors"
+                      className="px-6 py-3 border border-gray-300 dark:border-gray-600 rounded-xl 
+                               font-medium bg-white dark:bg-gray-700 hover:bg-gray-50 
+                               dark:hover:bg-gray-600 transition-all duration-200"
                     >
                       キャンセル
                     </button>
                     <button
                       onClick={handleDelete}
-                      className="px-6 py-2 bg-red-600 text-white rounded-lg 
-                               hover:bg-red-700 transition-colors"
+                      className="px-6 py-3 bg-gradient-to-r from-red-600 to-red-700 text-white 
+                               rounded-xl hover:shadow-lg transition-all duration-200 font-medium
+                               hover:scale-[1.02]"
                     >
                       削除する
                     </button>

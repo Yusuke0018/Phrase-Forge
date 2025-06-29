@@ -55,24 +55,31 @@ export default function ArsenalPage() {
   }, [loadPhrases, loadCategories, loadTags]);
 
   useEffect(() => {
-    const filterPhrases = async () => {
+    const filterPhrases = () => {
       let filtered = phrases;
 
       // 検索フィルタ
       if (searchQuery) {
-        filtered = await searchPhrases(searchQuery);
+        const lowerQuery = searchQuery.toLowerCase();
+        filtered = filtered.filter(phrase =>
+          phrase.english.toLowerCase().includes(lowerQuery) ||
+          phrase.japanese.toLowerCase().includes(lowerQuery) ||
+          (phrase.pronunciation && phrase.pronunciation.toLowerCase().includes(lowerQuery))
+        );
       }
 
       // タグフィルタ
       if (selectedTag !== 'all') {
-        filtered = await filterByTag(selectedTag);
+        filtered = filtered.filter(phrase => 
+          phrase.tags.includes(selectedTag)
+        );
       }
 
       setDisplayedPhrases(filtered);
     };
 
     filterPhrases();
-  }, [searchQuery, selectedTag, phrases, searchPhrases, filterByTag]);
+  }, [searchQuery, selectedTag, phrases]);
 
   if (isLoading) {
     return (
@@ -190,7 +197,7 @@ export default function ArsenalPage() {
                 >
                   <option value="all">すべて</option>
                   {tags.map((tag) => (
-                    <option key={tag.id} value={tag.id}>
+                    <option key={tag.id} value={tag.name}>
                       {tag.name}
                     </option>
                   ))}

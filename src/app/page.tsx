@@ -19,18 +19,33 @@ import { usePhraseStore } from '@/stores/phrase.store';
 import { ReviewCard } from '@/components/Cards/ReviewCard';
 import { useAppInitializer } from '@/hooks/useAppInitializer';
 import { AddPhraseModal } from '@/components/UI/AddPhraseModal';
+import { FiChevronLeft, FiChevronRight } from 'react-icons/fi';
+import { motion } from 'framer-motion';
 
 export default function HomePage() {
   const { isInitializing, initError } = useAppInitializer();
   const { 
     todaysPhrases, 
     currentPhraseIndex,
-    loadTodaysPhrases
+    loadTodaysPhrases,
+    setCurrentPhraseIndex
   } = usePhraseStore();
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
 
   const currentPhrase = todaysPhrases[currentPhraseIndex];
   const today = new Date();
+
+  const handleNextPhrase = () => {
+    if (currentPhraseIndex < todaysPhrases.length - 1) {
+      setCurrentPhraseIndex(currentPhraseIndex + 1);
+    }
+  };
+
+  const handlePreviousPhrase = () => {
+    if (currentPhraseIndex > 0) {
+      setCurrentPhraseIndex(currentPhraseIndex - 1);
+    }
+  };
 
 
   if (isInitializing) {
@@ -122,7 +137,53 @@ export default function HomePage() {
           </a>
         </div>
       ) : currentPhrase ? (
-        <ReviewCard phrase={currentPhrase} />
+        <div className="relative">
+          <ReviewCard 
+            phrase={currentPhrase} 
+            onSwipeLeft={handleNextPhrase}
+            onSwipeRight={handlePreviousPhrase}
+          />
+          
+          {/* ナビゲーションボタン */}
+          <div className="flex justify-between items-center mt-6">
+            <motion.button
+              whileHover={{ scale: 1.1 }}
+              whileTap={{ scale: 0.95 }}
+              onClick={handlePreviousPhrase}
+              disabled={currentPhraseIndex === 0}
+              className="p-3 bg-white dark:bg-gray-800 rounded-full shadow-lg 
+                       disabled:opacity-30 disabled:cursor-not-allowed
+                       hover:shadow-xl transition-all duration-200"
+            >
+              <FiChevronLeft className="w-6 h-6 text-gray-600 dark:text-gray-400" />
+            </motion.button>
+            
+            <div className="flex gap-2">
+              {todaysPhrases.map((_, index) => (
+                <div
+                  key={index}
+                  className={`w-2 h-2 rounded-full transition-all duration-300 ${
+                    index === currentPhraseIndex
+                      ? 'bg-gradient-to-r from-blue-600 to-purple-600 w-8'
+                      : 'bg-gray-300 dark:bg-gray-600'
+                  }`}
+                />
+              ))}
+            </div>
+            
+            <motion.button
+              whileHover={{ scale: 1.1 }}
+              whileTap={{ scale: 0.95 }}
+              onClick={handleNextPhrase}
+              disabled={currentPhraseIndex === todaysPhrases.length - 1}
+              className="p-3 bg-white dark:bg-gray-800 rounded-full shadow-lg 
+                       disabled:opacity-30 disabled:cursor-not-allowed
+                       hover:shadow-xl transition-all duration-200"
+            >
+              <FiChevronRight className="w-6 h-6 text-gray-600 dark:text-gray-400" />
+            </motion.button>
+          </div>
+        </div>
       ) : (
         <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-8 text-center">
           <h2 className="text-xl font-semibold text-gray-800 dark:text-gray-100 mb-4">

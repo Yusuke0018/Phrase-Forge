@@ -22,7 +22,7 @@ interface AddPhraseModalProps {
 }
 
 export function AddPhraseModal({ isOpen, onClose }: AddPhraseModalProps) {
-  const { tags, addPhrase } = usePhraseStore();
+  const { phrases, tags, addPhrase } = usePhraseStore();
   const [formData, setFormData] = useState({
     english: '',
     japanese: '',
@@ -34,10 +34,19 @@ export function AddPhraseModal({ isOpen, onClose }: AddPhraseModalProps) {
   const [showSuccess, setShowSuccess] = useState(false);
   const [showTagSuggestions, setShowTagSuggestions] = useState(false);
   
+  // 全てのフレーズから既存のタグを収集
+  const allExistingTags = new Set<string>();
+  phrases.forEach(phrase => {
+    phrase.tags.forEach(tag => allExistingTags.add(tag));
+  });
+  
+  // タグストアからのタグも追加
+  tags.forEach(tag => allExistingTags.add(tag.name));
+  
   // 既存のタグから重複しないタグ名を取得
-  const existingTagNames = Array.from(
-    new Set(tags.map(tag => tag.name))
-  ).filter(name => !formData.selectedTags.includes(name));
+  const existingTagNames = Array.from(allExistingTags)
+    .filter(name => !formData.selectedTags.includes(name))
+    .sort();
   
   // 入力に基づいてフィルタリングされたタグ
   const filteredTags = formData.tagInput
