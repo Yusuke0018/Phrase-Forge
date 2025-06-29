@@ -119,11 +119,11 @@ export function ExportDialog({ isOpen, onClose, selectedPhrases = [] }: ExportDi
                   animate={{ scale: 1, opacity: 1 }}
                   className="text-center py-8"
                 >
-                  <div className="w-16 h-16 bg-green-100 rounded-full flex items-center 
+                  <div className="w-16 h-16 bg-green-100 dark:bg-green-900/30 rounded-full flex items-center 
                                 justify-center mx-auto mb-4">
-                    <FiCheck className="w-8 h-8 text-green-600" />
+                    <FiCheck className="w-8 h-8 text-green-600 dark:text-green-400" />
                   </div>
-                  <p className="text-lg font-medium text-gray-800">
+                  <p className="text-lg font-medium text-gray-800 dark:text-gray-100">
                     エクスポートが完了しました！
                   </p>
                 </motion.div>
@@ -132,7 +132,7 @@ export function ExportDialog({ isOpen, onClose, selectedPhrases = [] }: ExportDi
                 <div className="space-y-6">
                   {/* エクスポート対象 */}
                   <div>
-                    <p className="text-sm font-medium text-gray-700 mb-3">
+                    <p className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">
                       エクスポート対象
                     </p>
                     <div className="space-y-2">
@@ -142,7 +142,7 @@ export function ExportDialog({ isOpen, onClose, selectedPhrases = [] }: ExportDi
                           name="selectMode"
                           checked={selectMode === 'all'}
                           onChange={() => setSelectMode('all')}
-                          className="w-4 h-4 text-primary-600"
+                          className="w-4 h-4 text-blue-600"
                         />
                         <span className="text-sm text-gray-700 dark:text-gray-300">
                           すべてのフレーズ ({phrases.length}個)
@@ -154,7 +154,7 @@ export function ExportDialog({ isOpen, onClose, selectedPhrases = [] }: ExportDi
                           name="selectMode"
                           checked={selectMode === 'custom'}
                           onChange={() => setSelectMode('custom')}
-                          className="w-4 h-4 text-primary-600"
+                          className="w-4 h-4 text-blue-600"
                         />
                         <span className="text-sm text-gray-700 dark:text-gray-300">
                           フレーズを選択 ({selectedPhraseIds.size}個選択中)
@@ -173,7 +173,7 @@ export function ExportDialog({ isOpen, onClose, selectedPhrases = [] }: ExportDi
                               type="checkbox"
                               checked={selectedPhraseIds.has(phrase.id)}
                               onChange={() => togglePhraseSelection(phrase.id)}
-                              className="w-4 h-4 text-primary-600 rounded"
+                              className="w-4 h-4 text-blue-600 rounded"
                             />
                             <span className="text-sm text-gray-700 dark:text-gray-300 flex-1">
                               {phrase.english} - {phrase.japanese}
@@ -186,7 +186,7 @@ export function ExportDialog({ isOpen, onClose, selectedPhrases = [] }: ExportDi
 
                   {/* フォーマット選択 */}
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                       ファイル形式
                     </label>
                     <div className="grid grid-cols-2 gap-3">
@@ -194,8 +194,8 @@ export function ExportDialog({ isOpen, onClose, selectedPhrases = [] }: ExportDi
                         onClick={() => setOptions({ ...options, format: 'csv' })}
                         className={`py-2 px-4 rounded-lg border-2 transition-colors ${
                           options.format === 'csv'
-                            ? 'border-primary-500 bg-primary-50 text-primary-700'
-                            : 'border-gray-300 hover:border-gray-400'
+                            ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300'
+                            : 'border-gray-300 dark:border-gray-600 hover:border-gray-400 dark:hover:border-gray-500'
                         }`}
                       >
                         CSV
@@ -204,8 +204,8 @@ export function ExportDialog({ isOpen, onClose, selectedPhrases = [] }: ExportDi
                         onClick={() => setOptions({ ...options, format: 'json' })}
                         className={`py-2 px-4 rounded-lg border-2 transition-colors ${
                           options.format === 'json'
-                            ? 'border-primary-500 bg-primary-50 text-primary-700'
-                            : 'border-gray-300 hover:border-gray-400'
+                            ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300'
+                            : 'border-gray-300 dark:border-gray-600 hover:border-gray-400 dark:hover:border-gray-500'
                         }`}
                       >
                         JSON
@@ -225,7 +225,7 @@ export function ExportDialog({ isOpen, onClose, selectedPhrases = [] }: ExportDi
                         })}
                         className="w-4 h-4 text-primary-600 rounded"
                       />
-                      <span className="text-sm text-gray-700">
+                      <span className="text-sm text-gray-700 dark:text-gray-300">
                         メタデータを含める（ID、作成日時など）
                       </span>
                     </label>
@@ -239,9 +239,9 @@ export function ExportDialog({ isOpen, onClose, selectedPhrases = [] }: ExportDi
                             ...options, 
                             includeReviewHistory: e.target.checked 
                           })}
-                          className="w-4 h-4 text-primary-600 rounded"
+                          className="w-4 h-4 text-blue-600 rounded"
                         />
-                        <span className="text-sm text-gray-700">
+                        <span className="text-sm text-gray-700 dark:text-gray-300">
                           レビュー履歴を含める
                         </span>
                       </label>
@@ -252,20 +252,20 @@ export function ExportDialog({ isOpen, onClose, selectedPhrases = [] }: ExportDi
                   <div className="flex gap-3 pt-4">
                     <button
                       onClick={onClose}
-                      className="flex-1 px-4 py-2 border border-gray-300 rounded-lg 
-                               hover:bg-gray-50 transition-colors"
+                      className="flex-1 px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg 
+                               hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
                     >
                       キャンセル
                     </button>
                     <button
                       onClick={handleExport}
-                      disabled={isExporting}
-                      className="flex-1 px-4 py-2 bg-primary-600 text-white rounded-lg 
-                               hover:bg-primary-700 transition-colors flex items-center 
-                               justify-center gap-2 disabled:opacity-50"
+                      disabled={isExporting || (selectMode === 'custom' && selectedPhraseIds.size === 0)}
+                      className="flex-1 px-4 py-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-lg 
+                               hover:shadow-lg transition-all duration-200 flex items-center 
+                               justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
                     >
                       <FiDownload className="w-5 h-5" />
-                      {isExporting ? 'エクスポート中...' : 'エクスポート'}
+                      {isExporting ? 'エクスポート中...' : `エクスポート (${exportCount}個)`}
                     </button>
                   </div>
                 </div>
