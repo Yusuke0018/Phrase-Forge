@@ -61,7 +61,8 @@ export default function HomePage() {
   }
 
   return (
-    <div className="max-w-2xl mx-auto px-4 py-6 pt-20">
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
+      <div className="max-w-2xl mx-auto px-4 py-6 pt-20">
       {/* ヘッダーとフレーズ追加ボタン */}
       <div className="flex justify-between items-start mb-6">
         {/* 日付表示 */}
@@ -81,13 +82,13 @@ export default function HomePage() {
         {/* フレーズ追加ボタン */}
         <button
           onClick={() => setIsAddModalOpen(true)}
-          className="group relative w-12 h-12 bg-gray-900 text-white rounded-full 
-                   hover:bg-gray-800 transition-all duration-200 flex items-center justify-center
-                   shadow-lg hover:shadow-xl hover:scale-110"
+          className="group relative w-12 h-12 bg-gradient-to-r from-blue-600 to-purple-600 
+                   text-white rounded-xl hover:shadow-xl transition-all duration-300 
+                   flex items-center justify-center hover:scale-105 shadow-lg"
           aria-label="フレーズを追加"
         >
           <svg 
-            className="w-6 h-6" 
+            className="w-6 h-6 group-hover:rotate-90 transition-transform duration-300" 
             fill="none" 
             stroke="currentColor" 
             viewBox="0 0 24 24" 
@@ -100,11 +101,6 @@ export default function HomePage() {
               d="M12 4v16m8-8H4" 
             />
           </svg>
-          <span className="absolute -bottom-8 left-1/2 transform -translate-x-1/2 
-                         opacity-0 group-hover:opacity-100 transition-opacity duration-200
-                         text-xs text-gray-600 whitespace-nowrap">
-            フレーズを追加
-          </span>
         </button>
       </div>
 
@@ -147,6 +143,7 @@ export default function HomePage() {
           loadTodaysPhrases();
         }}
       />
+      </div>
     </div>
   );
 }
