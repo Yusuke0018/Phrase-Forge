@@ -22,20 +22,20 @@ import { usePhraseStore } from '@/stores/phrase.store';
 import { FiTrendingUp, FiAward, FiCalendar, FiPieChart } from 'react-icons/fi';
 
 export default function ChroniclePage() {
-  const { categories, loadCategories, getStats } = usePhraseStore();
+  const { phrases, tags, loadPhrases, loadTags, getStats } = usePhraseStore();
   const [stats, setStats] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     const loadStats = async () => {
       setIsLoading(true);
-      await loadCategories();
+      await Promise.all([loadPhrases(), loadTags()]);
       const statsData = await getStats();
       setStats(statsData);
       setIsLoading(false);
     };
     loadStats();
-  }, [loadCategories, getStats]);
+  }, [loadPhrases, loadTags, getStats]);
 
   if (isLoading || !stats) {
     return (
@@ -48,15 +48,27 @@ export default function ChroniclePage() {
     );
   }
 
-  // カテゴリ別データの準備
-  const categoryData = stats.categoryStats.map((stat: any) => {
-    const category = categories.find(c => c.id === stat.categoryId);
-    return {
-      name: category ? `${category.icon} ${category.name}` : '不明',
-      value: stat.count,
-      color: category?.color || '#9CA3AF'
-    };
+  // タグ別データの準備
+  const tagStats = new Map<string, number>();
+  phrases.forEach(phrase => {
+    phrase.tags.forEach(tag => {
+      tagStats.set(tag, (tagStats.get(tag) || 0) + 1);
+    });
   });
+  
+  const tagData = Array.from(tagStats.entries())
+    .map(([tagName, count]) => {
+      const tag = tags.find(t => t.name === tagName);
+      const colors = ['#3B82F6', '#8B5CF6', '#EC4899', '#10B981', '#F59E0B', '#EF4444'];
+      const colorIndex = tags.findIndex(t => t.name === tagName) % colors.length;
+      return {
+        name: tagName,
+        value: count,
+        color: tag?.color || colors[colorIndex]
+      };
+    })
+    .sort((a, b) => b.value - a.value)
+    .slice(0, 10); // 上位10タグのみ表示
 
   // 習熟度データの準備
   const masteryData = [
@@ -130,28 +142,34 @@ export default function ChroniclePage() {
           </ResponsiveContainer>
         </div>
 
-        {/* カテゴリ別分布 */}
+        {/* タグ別分布 */}
         <div className="bg-white rounded-lg shadow-md p-6">
-          <h3 className="text-lg font-bold text-gray-800 mb-4">カテゴリ別分布</h3>
-          <ResponsiveContainer width="100%" height={250}>
-            <PieChart>
-              <Pie
-                data={categoryData}
-                cx="50%"
-                cy="50%"
-                labelLine={false}
-                label={(entry) => `${entry.name}: ${entry.value}`}
-                outerRadius={80}
-                fill="#8884d8"
-                dataKey="value"
-              >
-                {categoryData.map((entry: any, index: number) => (
-                  <Cell key={`cell-${index}`} fill={entry.color} />
-                ))}
-              </Pie>
-              <Tooltip />
-            </PieChart>
-          </ResponsiveContainer>
+          <h3 className="text-lg font-bold text-gray-800 mb-4">タグ別分布（上位10）</h3>
+          {tagData.length > 0 ? (
+            <ResponsiveContainer width="100%" height={250}>
+              <PieChart>
+                <Pie
+                  data={tagData}
+                  cx="50%"
+                  cy="50%"
+                  labelLine={false}
+                  label={(entry) => `${entry.name}: ${entry.value}`}
+                  outerRadius={80}
+                  fill="#8884d8"
+                  dataKey="value"
+                >
+                  {tagData.map((entry: any, index: number) => (
+                    <Cell key={`cell-${index}`} fill={entry.color} />
+                  ))}
+                </Pie>
+                <Tooltip />
+              </PieChart>
+            </ResponsiveContainer>
+          ) : (
+            <div className="flex items-center justify-center h-[250px] text-gray-500">
+              タグデータがありません
+            </div>
+          )}
         </div>
 
         {/* 習熟度分布 */}
