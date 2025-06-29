@@ -142,74 +142,94 @@ export function ImportDialog({ isOpen, onClose }: ImportDialogProps) {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              className="fixed inset-0 bg-black bg-opacity-50 z-50"
+              className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50"
               onClick={onClose}
             />
 
             {/* ダイアログ */}
             <motion.div
-              initial={{ opacity: 0, scale: 0.9, y: 20 }}
+              initial={{ opacity: 0, scale: 0.95, y: 20 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.9, y: 20 }}
+              exit={{ opacity: 0, scale: 0.95, y: 20 }}
+              transition={{ type: "spring", duration: 0.5 }}
               className="fixed inset-x-4 top-20 md:inset-x-auto md:left-1/2 md:-translate-x-1/2 
-                         max-w-md w-full bg-white rounded-lg shadow-xl z-50"
+                         max-w-md w-full bg-white dark:bg-gray-800 rounded-2xl shadow-2xl z-50
+                         border border-gray-100 dark:border-gray-700"
             >
               <div className="p-6">
                 {/* ヘッダー */}
                 <div className="flex items-center justify-between mb-6">
-                  <h2 className="text-xl font-bold text-gray-800">
+                  <h2 className="text-xl font-bold text-gray-800 dark:text-gray-100">
                     フレーズをインポート
                   </h2>
                   <button
                     onClick={onClose}
-                    className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+                    className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-xl 
+                             transition-all duration-200 hover:scale-110"
                   >
-                    <FiX className="w-6 h-6 text-gray-600" />
+                    <FiX className="w-6 h-6 text-gray-600 dark:text-gray-400" />
                   </button>
                 </div>
 
                 {/* ファイル選択エリア */}
-                <div
-                  onDrop={handleDrop}
-                  onDragOver={(e) => e.preventDefault()}
-                  className="border-2 border-dashed border-gray-300 rounded-lg p-8 
-                           text-center hover:border-primary-400 transition-colors"
-                >
-                  {file ? (
-                    <div className="space-y-2">
-                      <FiFile className="w-12 h-12 text-primary-600 mx-auto" />
-                      <p className="text-sm font-medium text-gray-800">{file.name}</p>
-                      <p className="text-xs text-gray-500">
-                        {(file.size / 1024).toFixed(2)} KB
-                      </p>
-                    </div>
-                  ) : (
-                    <>
-                      <FiUpload className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-                      <p className="text-gray-600 mb-2">
-                        ファイルをドロップするか、クリックして選択
-                      </p>
-                      <p className="text-sm text-gray-500">
-                        CSV または JSON ファイルに対応
-                      </p>
-                    </>
-                  )}
+                <div className="space-y-4">
+                  <div
+                    onDrop={handleDrop}
+                    onDragOver={(e) => e.preventDefault()}
+                    className="border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-xl p-8 
+                             text-center hover:border-blue-400 dark:hover:border-blue-500 transition-colors
+                             bg-gray-50 dark:bg-gray-700/50"
+                  >
+                    {file ? (
+                      <div className="space-y-2">
+                        <FiFile className="w-12 h-12 text-blue-600 dark:text-blue-400 mx-auto" />
+                        <p className="text-sm font-medium text-gray-800 dark:text-gray-200">{file.name}</p>
+                        <p className="text-xs text-gray-500 dark:text-gray-400">
+                          {(file.size / 1024).toFixed(2)} KB
+                        </p>
+                        <button
+                          onClick={() => setFile(null)}
+                          className="text-sm text-red-600 hover:text-red-700 dark:text-red-400 
+                                   dark:hover:text-red-300 underline"
+                        >
+                          ファイルを変更
+                        </button>
+                      </div>
+                    ) : (
+                      <>
+                        <FiUpload className="w-12 h-12 text-gray-400 dark:text-gray-500 mx-auto mb-4" />
+                        <p className="text-gray-600 dark:text-gray-300 mb-2">
+                          ファイルをドロップ
+                        </p>
+                        <p className="text-sm text-gray-500 dark:text-gray-400">
+                          CSV または JSON ファイルに対応
+                        </p>
+                      </>
+                    )}
+                  </div>
                   
-                  <input
-                    type="file"
-                    accept=".csv,.json"
-                    onChange={handleFileSelect}
-                    className="hidden"
-                    id="file-input"
-                  />
+                  {/* スマホ対応のファイル選択ボタン */}
                   {!file && (
-                    <label
-                      htmlFor="file-input"
-                      className="inline-block mt-4 px-4 py-2 bg-primary-600 text-white 
-                               rounded-lg hover:bg-primary-700 transition-colors cursor-pointer"
-                    >
-                      ファイルを選択
-                    </label>
+                    <div className="relative">
+                      <input
+                        type="file"
+                        accept=".csv,.json"
+                        onChange={handleFileSelect}
+                        className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
+                        id="file-input-mobile"
+                      />
+                      <button
+                        type="button"
+                        className="w-full px-6 py-3 bg-gradient-to-r from-blue-600 to-purple-600 
+                                 text-white rounded-xl hover:shadow-lg transition-all duration-200 
+                                 font-medium shadow-md hover:scale-[1.02]"
+                      >
+                        <span className="flex items-center justify-center gap-2">
+                          <FiUpload className="w-5 h-5" />
+                          ファイルを選択
+                        </span>
+                      </button>
+                    </div>
                   )}
                 </div>
 
@@ -231,9 +251,9 @@ export function ImportDialog({ isOpen, onClose }: ImportDialogProps) {
                 )}
 
                 {/* インポート情報 */}
-                <div className="mt-6 p-4 bg-gray-50 rounded-lg">
-                  <h3 className="font-medium text-gray-800 mb-2">インポート時の動作</h3>
-                  <ul className="text-sm text-gray-600 space-y-1">
+                <div className="mt-6 p-4 bg-gray-50 dark:bg-gray-700/50 rounded-xl">
+                  <h3 className="font-medium text-gray-800 dark:text-gray-200 mb-2">インポート時の動作</h3>
+                  <ul className="text-sm text-gray-600 dark:text-gray-400 space-y-1">
                     <li>• 既存のデータは保持されます</li>
                     <li>• 重複するフレーズは確認画面が表示されます</li>
                     <li>• インポート前に自動でバックアップが作成されます</li>
@@ -244,17 +264,19 @@ export function ImportDialog({ isOpen, onClose }: ImportDialogProps) {
                 <div className="flex gap-3 mt-6">
                   <button
                     onClick={onClose}
-                    className="flex-1 px-4 py-2 border border-gray-300 rounded-lg 
-                             hover:bg-gray-50 transition-colors"
+                    className="flex-1 px-5 py-3 border border-gray-300 dark:border-gray-600 rounded-xl 
+                             font-medium bg-white dark:bg-gray-700 hover:bg-gray-50 
+                             dark:hover:bg-gray-600 transition-all duration-200"
                   >
                     キャンセル
                   </button>
                   <button
                     onClick={handleImport}
                     disabled={!file || isProcessing}
-                    className="flex-1 px-4 py-2 bg-primary-600 text-white rounded-lg 
-                             hover:bg-primary-700 transition-colors disabled:opacity-50 
-                             disabled:cursor-not-allowed"
+                    className="flex-1 px-5 py-3 rounded-xl transition-all duration-200 font-medium 
+                             shadow-lg hover:shadow-xl transform hover:scale-[1.02]
+                             disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100
+                             bg-gradient-to-r from-blue-600 to-purple-600 text-white"
                   >
                     {isProcessing ? 'インポート中...' : 'インポート'}
                   </button>
