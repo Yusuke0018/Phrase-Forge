@@ -12,9 +12,12 @@
 
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { FiX, FiPlus, FiTrash2 } from 'react-icons/fi';
+import { FiX, FiPlus, FiTrash2, FiCalendar } from 'react-icons/fi';
 import { usePhraseStore } from '@/stores/phrase.store';
-import { Phrase } from '@/types/models';
+import { Phrase, ReviewInterval } from '@/types/models';
+import { REVIEW_INTERVALS, calculateNextReviewDate, formatNextReviewDate } from '@/services/srs.service';
+import { format } from 'date-fns';
+import { ja } from 'date-fns/locale';
 
 interface EditPhraseModalProps {
   isOpen: boolean;
@@ -30,6 +33,8 @@ export function EditPhraseModal({ isOpen, onClose, phrase }: EditPhraseModalProp
     pronunciation: '',
     tagInput: '',
     selectedTags: [] as string[],
+    nextReviewDate: new Date(),
+    reviewInterval: 'tomorrow' as ReviewInterval,
   });
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [showTagSuggestions, setShowTagSuggestions] = useState(false);
@@ -63,6 +68,8 @@ export function EditPhraseModal({ isOpen, onClose, phrase }: EditPhraseModalProp
         pronunciation: phrase.pronunciation || '',
         tagInput: '',
         selectedTags: [...phrase.tags],
+        nextReviewDate: new Date(phrase.nextReviewDate),
+        reviewInterval: 'tomorrow',
       });
     }
   }, [phrase]);
@@ -80,6 +87,7 @@ export function EditPhraseModal({ isOpen, onClose, phrase }: EditPhraseModalProp
         japanese: formData.japanese.trim(),
         pronunciation: formData.pronunciation.trim(),
         tags: formData.selectedTags,
+        nextReviewDate: formData.nextReviewDate,
       });
       
       onClose();
@@ -289,6 +297,80 @@ export function EditPhraseModal({ isOpen, onClose, phrase }: EditPhraseModalProp
                         ))}
                       </div>
                     )}
+                  </div>
+
+                  {/* 次回レビュー日 */}
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                      次回レビュー日
+                    </label>
+                    <div className="space-y-3">
+                      {/* 現在の設定 */}
+                      <div className="flex items-center gap-3 px-4 py-3 bg-blue-50 dark:bg-blue-900/20 
+                                    rounded-xl border border-blue-200 dark:border-blue-700">
+                        <FiCalendar className="w-5 h-5 text-blue-600 dark:text-blue-400" />
+                        <div>
+                          <p className="text-sm font-medium text-blue-900 dark:text-blue-100">
+                            {format(formData.nextReviewDate, 'yyyy年MM月dd日', { locale: ja })}
+                          </p>
+                          <p className="text-xs text-blue-700 dark:text-blue-300">
+                            {formatNextReviewDate(formData.nextReviewDate)}
+                          </p>
+                        </div>
+                      </div>
+
+                      {/* 復習間隔の選択 */}
+                      <div>
+                        <p className="text-xs text-gray-600 dark:text-gray-400 mb-2">
+                          復習間隔を選択:
+                        </p>
+                        <div className="grid grid-cols-2 gap-2">
+                          {Object.entries(REVIEW_INTERVALS).map(([key, value]) => (
+                            <button
+                              key={key}
+                              type="button"
+                              onClick={() => {
+                                setFormData({
+                                  ...formData,
+                                  reviewInterval: key as ReviewInterval,
+                                  nextReviewDate: calculateNextReviewDate(key as ReviewInterval),
+                                });
+                              }}
+                              className={`px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200
+                                       ${formData.reviewInterval === key
+                                         ? 'bg-gradient-to-r from-blue-500 to-blue-600 text-white shadow-md'
+                                         : 'bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600'
+                                       }`}
+                            >
+                              {value.label}
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+
+                      {/* カスタム日付選択 */}
+                      <div>
+                        <p className="text-xs text-gray-600 dark:text-gray-400 mb-2">
+                          または日付を直接選択:
+                        </p>
+                        <input
+                          type="date"
+                          value={format(formData.nextReviewDate, 'yyyy-MM-dd')}
+                          onChange={(e) => {
+                            const newDate = new Date(e.target.value);
+                            setFormData({
+                              ...formData,
+                              nextReviewDate: newDate,
+                              reviewInterval: 'tomorrow', // カスタム日付選択時はデフォルトに戻す
+                            });
+                          }}
+                          min={format(new Date(), 'yyyy-MM-dd')}
+                          className="w-full px-4 py-2 bg-gray-50 dark:bg-gray-700 border-0 rounded-xl 
+                                   focus:ring-2 focus:ring-blue-500 focus:bg-white dark:focus:bg-gray-600
+                                   transition-all duration-200"
+                        />
+                      </div>
+                    </div>
                   </div>
 
                   {/* ボタン */}
