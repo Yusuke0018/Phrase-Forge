@@ -253,6 +253,51 @@ export const usePhraseStore = create<PhraseStore>((set, get) => ({
     
     const stats = await db.stats.where('id').equals('main').first();
     
+    // 連続記録の確認と更新
+    if (stats && stats.lastReviewDate) {
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      
+      const lastReview = new Date(stats.lastReviewDate);
+      lastReview.setHours(0, 0, 0, 0);
+      
+      const daysSinceLastReview = Math.floor((today.getTime() - lastReview.getTime()) / (1000 * 60 * 60 * 24));
+      
+      // 2日以上経過していたら連続記録をリセット
+      if (daysSinceLastReview > 1) {
+        stats.currentStreak = 0;
+        // DBも更新
+        await db.stats.where('id').equals('main').modify({
+          currentStreak: 0
+        });
+      }
+      
+      // 今日レビューしているかチェック
+      const todayStart = new Date();
+      todayStart.setHours(0, 0, 0, 0);
+      const todayEnd = new Date();
+      todayEnd.setHours(23, 59, 59, 999);
+      
+      const todayReviewCount = await db.phrases
+        .filter(phrase => 
+          phrase.reviewHistory.some(review => {
+            const reviewDate = new Date(review.date);
+            return reviewDate >= todayStart && reviewDate <= todayEnd;
+          })
+        ).count();
+      
+      // 今日レビューしていて、連続記録が0の場合は1にする
+      if (todayReviewCount > 0 && stats.currentStreak === 0) {
+        stats.currentStreak = 1;
+        stats.longestStreak = Math.max(1, stats.longestStreak);
+        // DBも更新
+        await db.stats.where('id').equals('main').modify({
+          currentStreak: 1,
+          longestStreak: Math.max(1, stats.longestStreak)
+        });
+      }
+    }
+    
     // 効率的なデータ取得のため、必要な部分のみを取得
     const phrasesCount = await db.phrases.count();
     const phrases = await db.phrases.toArray();
