@@ -33,7 +33,6 @@ interface ReviewCardProps {
 export function ReviewCard({ phrase, onSwipeLeft, onSwipeRight }: ReviewCardProps) {
   const [showEnglish, setShowEnglish] = useState(false);
   const [isFlipping, setIsFlipping] = useState(false);
-  const [selectedDifficulty, setSelectedDifficulty] = useState<number | null>(null);
   const [swipeDirection, setSwipeDirection] = useState<'left' | 'right' | null>(null);
   const [showConfirmDialog, setShowConfirmDialog] = useState(false);
   const [pendingInterval, setPendingInterval] = useState<ReviewInterval | null>(null);
@@ -48,10 +47,9 @@ export function ReviewCard({ phrase, onSwipeLeft, onSwipeRight }: ReviewCardProp
     if (!pendingInterval) return;
     
     try {
-      // デフォルトの難易度は0.5（中程度）
-      const difficulty = selectedDifficulty ?? 0.5;
+      // 難易度は固定値0.5を使用
       const nextReviewDate = calculateNextReviewDate(pendingInterval);
-      await updatePhraseReviewDate(phrase.id, nextReviewDate, pendingInterval, difficulty);
+      await updatePhraseReviewDate(phrase.id, nextReviewDate, pendingInterval, 0.5);
       
       // レビュー済みのフレーズを状態から削除
       removeReviewedPhrase(phrase.id);
@@ -180,51 +178,6 @@ export function ReviewCard({ phrase, onSwipeLeft, onSwipeRight }: ReviewCardProp
         )}
       </motion.div>
 
-      {/* 難易度選択 */}
-      {showEnglish && (
-        <motion.div 
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.2 }}
-          className="mt-6 px-4"
-        >
-          <p className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-3 text-center">
-            どのくらい難しかったですか？
-          </p>
-          <div className="flex justify-center gap-3">
-            <button
-              onClick={() => setSelectedDifficulty(0.2)}
-              className={`px-5 py-3 rounded-xl font-medium transition-all duration-200 ${
-                selectedDifficulty === 0.2
-                  ? 'bg-gradient-to-r from-green-500 to-emerald-600 text-white shadow-lg scale-105'
-                  : 'bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 hover:border-green-400'
-              }`}
-            >
-              簡単
-            </button>
-            <button
-              onClick={() => setSelectedDifficulty(0.5)}
-              className={`px-5 py-3 rounded-xl font-medium transition-all duration-200 ${
-                selectedDifficulty === 0.5
-                  ? 'bg-gradient-to-r from-yellow-500 to-orange-600 text-white shadow-lg scale-105'
-                  : 'bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 hover:border-yellow-400'
-              }`}
-            >
-              普通
-            </button>
-            <button
-              onClick={() => setSelectedDifficulty(0.8)}
-              className={`px-5 py-3 rounded-xl font-medium transition-all duration-200 ${
-                selectedDifficulty === 0.8
-                  ? 'bg-gradient-to-r from-red-500 to-pink-600 text-white shadow-lg scale-105'
-                  : 'bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 hover:border-red-400'
-              }`}
-            >
-              難しい
-            </button>
-          </div>
-        </motion.div>
-      )}
 
       {/* 復習間隔選択ボタン */}
       <motion.div 

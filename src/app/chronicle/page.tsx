@@ -59,7 +59,7 @@ export default function ChroniclePage() {
   const tagData = Array.from(tagStats.entries())
     .map(([tagName, count]) => {
       const tag = tags.find(t => t.name === tagName);
-      const colors = ['#3B82F6', '#8B5CF6', '#EC4899', '#10B981', '#F59E0B', '#EF4444'];
+      const colors = ['#3B82F6', '#8B5CF6', '#EC4899', '#10B981', '#F59E0B', '#EF4444', '#14B8A6', '#F97316', '#6366F1', '#84CC16'];
       const colorIndex = tags.findIndex(t => t.name === tagName) % colors.length;
       return {
         name: tagName,
@@ -70,12 +70,6 @@ export default function ChroniclePage() {
     .sort((a, b) => b.value - a.value)
     .slice(0, 10); // 上位10タグのみ表示
 
-  // 習熟度データの準備
-  const masteryData = [
-    { name: '初級', value: stats.masteryLevels.beginner, color: '#FCD34D' },
-    { name: '中級', value: stats.masteryLevels.intermediate, color: '#60A5FA' },
-    { name: '上級', value: stats.masteryLevels.advanced, color: '#34D399' }
-  ];
 
   // 日別データのフォーマット
   const dailyData = stats.dailyStats.map((day: any) => ({
@@ -152,8 +146,6 @@ export default function ChroniclePage() {
                   data={tagData}
                   cx="50%"
                   cy="50%"
-                  labelLine={false}
-                  label={(entry) => `${entry.name}: ${entry.value}`}
                   outerRadius={80}
                   fill="#8884d8"
                   dataKey="value"
@@ -162,7 +154,14 @@ export default function ChroniclePage() {
                     <Cell key={`cell-${index}`} fill={entry.color} />
                   ))}
                 </Pie>
-                <Tooltip />
+                <Tooltip formatter={(value: any, name: any) => [`${value}個`, name]} />
+                <Legend 
+                  verticalAlign="middle" 
+                  align="right" 
+                  layout="vertical"
+                  formatter={(value: any, entry: any) => `${value} (${entry.payload.value})`}
+                  wrapperStyle={{ paddingLeft: "20px" }}
+                />
               </PieChart>
             </ResponsiveContainer>
           ) : (
@@ -172,23 +171,6 @@ export default function ChroniclePage() {
           )}
         </div>
 
-        {/* 習熟度分布 */}
-        <div className="bg-white rounded-lg shadow-md p-6">
-          <h3 className="text-lg font-bold text-gray-800 mb-4">習熟度分布</h3>
-          <ResponsiveContainer width="100%" height={250}>
-            <BarChart data={masteryData}>
-              <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="name" tick={{ fontSize: 12 }} />
-              <YAxis tick={{ fontSize: 12 }} />
-              <Tooltip />
-              <Bar dataKey="value" name="フレーズ数">
-                {masteryData.map((entry, index) => (
-                  <Cell key={`cell-${index}`} fill={entry.color} />
-                ))}
-              </Bar>
-            </BarChart>
-          </ResponsiveContainer>
-        </div>
 
         {/* 成長記録 */}
         <div className="bg-white rounded-lg shadow-md p-6">
@@ -205,20 +187,6 @@ export default function ChroniclePage() {
               <span className="text-xl font-bold text-gray-800">
                 {stats.monthlyReviews || 0} 回
               </span>
-            </div>
-            <div className="flex items-center justify-between">
-              <span className="text-gray-600">平均習熟度</span>
-              <div className="flex items-center gap-2">
-                <div className="w-24 bg-gray-200 rounded-full h-2">
-                  <div 
-                    className="bg-primary-600 h-2 rounded-full"
-                    style={{ width: `${stats.averageMastery || 0}%` }}
-                  />
-                </div>
-                <span className="text-sm text-gray-600">
-                  {stats.averageMastery || 0}%
-                </span>
-              </div>
             </div>
           </div>
         </div>

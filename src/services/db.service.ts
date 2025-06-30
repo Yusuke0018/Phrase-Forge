@@ -117,9 +117,37 @@ export async function updatePhraseReviewDate(
     updatedAt: new Date()
   });
 
-  // 統計の更新
+  // 統計と連続記録の更新
   await db.stats.where('id').equals('main').modify((stats) => {
     stats.totalReviews++;
+    
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    
+    const lastReview = stats.lastReviewDate ? new Date(stats.lastReviewDate) : null;
+    if (lastReview) {
+      lastReview.setHours(0, 0, 0, 0);
+    }
+    
+    if (!lastReview) {
+      // 初回レビュー
+      stats.currentStreak = 1;
+      stats.longestStreak = Math.max(1, stats.longestStreak);
+    } else {
+      const daysSinceLastReview = Math.floor((today.getTime() - lastReview.getTime()) / (1000 * 60 * 60 * 24));
+      
+      if (daysSinceLastReview === 0) {
+        // 同じ日に複数回レビューした場合は連続記録を維持
+      } else if (daysSinceLastReview === 1) {
+        // 連続している
+        stats.currentStreak++;
+        stats.longestStreak = Math.max(stats.currentStreak, stats.longestStreak);
+      } else {
+        // 連続が途切れた
+        stats.currentStreak = 1;
+      }
+    }
+    
     stats.lastReviewDate = new Date();
   });
 }

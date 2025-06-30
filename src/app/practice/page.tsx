@@ -12,7 +12,7 @@ import { FiPlay, FiPause, FiSkipForward, FiRefreshCw, FiSettings } from 'react-i
 import { usePhraseStore } from '@/stores/phrase.store';
 import { Phrase } from '@/types/models';
 
-type PracticeMode = 'random' | 'category' | 'tag' | 'difficult';
+type PracticeMode = 'random' | 'category' | 'tag';
 type DisplayMode = 'english' | 'japanese' | 'both';
 
 export default function PracticePage() {
@@ -63,13 +63,6 @@ export default function PracticePage() {
         if (selectedTag) {
           filtered = filtered.filter(p => p.tags.includes(selectedTag));
         }
-        break;
-      case 'difficult':
-        // 難易度が高い（レビュー履歴で難しいと判定された）フレーズを優先
-        filtered = filtered.filter(p => {
-          const latestReview = p.reviewHistory[p.reviewHistory.length - 1];
-          return latestReview && latestReview.difficulty > 0.7;
-        });
         break;
     }
 
@@ -142,7 +135,6 @@ export default function PracticePage() {
               <option value="random">ランダム</option>
               <option value="category">カテゴリ別</option>
               <option value="tag">タグ別</option>
-              <option value="difficult">苦手なフレーズ</option>
             </select>
           </div>
 

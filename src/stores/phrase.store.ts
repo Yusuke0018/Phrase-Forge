@@ -276,13 +276,13 @@ export const usePhraseStore = create<PhraseStore>((set, get) => ({
       const nextDate = new Date(date);
       nextDate.setDate(nextDate.getDate() + 1);
       
-      // その日にレビューされたフレーズ数をカウント
-      const reviewCount = phrases.filter(phrase => {
-        return phrase.reviewHistory.some(review => {
+      // その日のレビュー回数をカウント
+      const reviewCount = phrases.reduce((total, phrase) => {
+        return total + phrase.reviewHistory.filter(review => {
           const reviewDate = new Date(review.date);
           return reviewDate >= date && reviewDate < nextDate;
-        });
-      }).length;
+        }).length;
+      }, 0);
       
       dailyStats.push({
         date: date.toISOString().split('T')[0],
