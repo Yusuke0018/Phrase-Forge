@@ -256,16 +256,16 @@ export const usePhraseStore = create<PhraseStore>((set, get) => ({
     // 連続記録の計算
     const phrases = await db.phrases.toArray();
     
-    // 過去30日分の日付を作成
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
+    // 現在の日付を作成
+    const currentDate = new Date();
+    currentDate.setHours(0, 0, 0, 0);
     
-    // 各日のレビュー有無をチェック
+    // 各日のレビュー有無をチェック（最大365日前まで）
     let currentStreak = 0;
     let streakActive = true;
     
-    for (let i = 0; i < 30 && streakActive; i++) {
-      const checkDate = new Date(today);
+    for (let i = 0; i < 365 && streakActive; i++) {
+      const checkDate = new Date(currentDate);
       checkDate.setDate(checkDate.getDate() - i);
       checkDate.setHours(0, 0, 0, 0);
       
