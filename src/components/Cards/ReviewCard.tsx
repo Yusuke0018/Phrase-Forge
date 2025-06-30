@@ -56,7 +56,6 @@ export function ReviewCard({ phrase, onSwipeLeft, onSwipeRight }: ReviewCardProp
       
       // 英語を隠す
       setShowEnglish(false);
-      setSelectedDifficulty(null);
       setShowConfirmDialog(false);
       setPendingInterval(null);
     } catch (error) {

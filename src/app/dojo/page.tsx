@@ -45,7 +45,7 @@ export default function DojoPage() {
     }
 
     if (filtered.length === 0) {
-      alert('テスト可能なフレーズがありません。');
+      alert('選択したタグに該当するフレーズがありません。');
       return;
     }
 
