@@ -31,7 +31,7 @@ interface ReviewCardProps {
 }
 
 export function ReviewCard({ phrase, onSwipeLeft, onSwipeRight }: ReviewCardProps) {
-  const [showTranslation, setShowTranslation] = useState(false);
+  const [showEnglish, setShowEnglish] = useState(false);
   const [isFlipping, setIsFlipping] = useState(false);
   const [selectedDifficulty, setSelectedDifficulty] = useState<number | null>(null);
   const [swipeDirection, setSwipeDirection] = useState<'left' | 'right' | null>(null);
@@ -56,8 +56,8 @@ export function ReviewCard({ phrase, onSwipeLeft, onSwipeRight }: ReviewCardProp
       // レビュー済みのフレーズを状態から削除
       removeReviewedPhrase(phrase.id);
       
-      // 翻訳を隠す
-      setShowTranslation(false);
+      // 英語を隠す
+      setShowEnglish(false);
       setSelectedDifficulty(null);
       setShowConfirmDialog(false);
       setPendingInterval(null);
@@ -72,10 +72,10 @@ export function ReviewCard({ phrase, onSwipeLeft, onSwipeRight }: ReviewCardProp
   };
 
   const swipeHandlers = useSwipe({
-    onSwipeUp: () => setShowTranslation(true),
-    onSwipeDown: () => setShowTranslation(false),
+    onSwipeUp: () => setShowEnglish(true),
+    onSwipeDown: () => setShowEnglish(false),
     onSwipeLeft: () => {
-      if (onSwipeLeft && !showTranslation) {
+      if (onSwipeLeft && !showEnglish) {
         setSwipeDirection('left');
         setTimeout(() => {
           onSwipeLeft();
@@ -84,7 +84,7 @@ export function ReviewCard({ phrase, onSwipeLeft, onSwipeRight }: ReviewCardProp
       }
     },
     onSwipeRight: () => {
-      if (onSwipeRight && !showTranslation) {
+      if (onSwipeRight && !showEnglish) {
         setSwipeDirection('right');
         setTimeout(() => {
           onSwipeRight();
@@ -110,7 +110,7 @@ export function ReviewCard({ phrase, onSwipeLeft, onSwipeRight }: ReviewCardProp
         {...swipeHandlers}
         onClick={() => {
           setIsFlipping(true);
-          setShowTranslation(!showTranslation);
+          setShowEnglish(!showEnglish);
           setTimeout(() => setIsFlipping(false), 300);
         }}
       >
@@ -122,38 +122,39 @@ export function ReviewCard({ phrase, onSwipeLeft, onSwipeRight }: ReviewCardProp
 
         {/* カード内容 */}
         <div className="min-h-[200px] flex flex-col justify-center">
-          {/* 英語フレーズ */}
-          <h2 className="text-3xl font-bold text-gray-800 dark:text-gray-100 mb-4 text-center
+          {/* 日本語フレーズ */}
+          <h2 className="text-3xl font-bold text-gray-800 dark:text-gray-100 mb-6 text-center
                        leading-tight">
-            {phrase.english}
+            {phrase.japanese}
           </h2>
 
-          {/* 発音記号 */}
-          {phrase.pronunciation && (
-            <p className="text-lg text-gray-500 dark:text-gray-400 mb-6 text-center italic">
-              /{phrase.pronunciation}/
-            </p>
-          )}
-
-          {/* 日本語訳（アニメーション付き） */}
+          {/* 英語訳（アニメーション付き） */}
           <AnimatePresence mode="wait">
-            {showTranslation && (
+            {showEnglish && (
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -20 }}
                 transition={{ duration: 0.3, type: "spring", stiffness: 200 }}
-                className="text-2xl font-medium bg-gradient-to-r from-blue-600 to-purple-600 
-                         bg-clip-text text-transparent text-center"
+                className="space-y-2"
               >
-                {phrase.japanese}
+                <div className="text-2xl font-medium bg-gradient-to-r from-blue-600 to-purple-600 
+                         bg-clip-text text-transparent text-center">
+                  {phrase.english}
+                </div>
+                {/* 発音記号 */}
+                {phrase.pronunciation && (
+                  <p className="text-lg text-gray-500 dark:text-gray-400 text-center italic">
+                    /{phrase.pronunciation}/
+                  </p>
+                )}
               </motion.div>
             )}
           </AnimatePresence>
 
           {/* 表示/非表示アイコン */}
           <div className="mt-4 flex justify-center">
-            {showTranslation ? (
+            {showEnglish ? (
               <FiEyeOff className="w-6 h-6 text-gray-400 dark:text-gray-500" />
             ) : (
               <FiEye className="w-6 h-6 text-gray-400 dark:text-gray-500" />
@@ -180,7 +181,7 @@ export function ReviewCard({ phrase, onSwipeLeft, onSwipeRight }: ReviewCardProp
       </motion.div>
 
       {/* 難易度選択 */}
-      {showTranslation && (
+      {showEnglish && (
         <motion.div 
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
@@ -260,7 +261,7 @@ export function ReviewCard({ phrase, onSwipeLeft, onSwipeRight }: ReviewCardProp
         transition={{ delay: 0.5 }}
         className="mt-4 text-center text-sm text-gray-500 dark:text-gray-400"
       >
-        タップまたは上スワイプで日本語訳を表示
+        タップまたは上スワイプで英語を表示
         {(onSwipeLeft || onSwipeRight) && (
           <>
             <br />
